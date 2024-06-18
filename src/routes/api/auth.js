@@ -6,4 +6,5 @@ import { login } from "../../utils/validator";
 
 export default Router()
   .post("/login", login, auth.login)
-  .get("/sidebar", is_login, sidebar.index);
+  .get("/sidebar", is_login, sidebar.index)
+  .post("/logout", is_login, auth.logout);

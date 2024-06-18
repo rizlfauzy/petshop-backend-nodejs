@@ -40,15 +40,6 @@ auth.login = async (req, res) => {
       { transaction: trans }
     );
 
-    // req.session.myusername = username;
-    // req.session.mygrup = user.grup;
-    // req.session.mycabang = user.kodetoko;
-    // req.session.tglawal_periode = konf.tglawal;
-    // req.session.tglakhir_periode = konf.tglakhir;
-    // req.session.kodeharga = konf.kodeharga;
-    // req.session.toko_bb = konf.toko_bb;
-    // req.session.token = token;
-
     await trans.commit();
 
     return res.status(200).json({
@@ -61,5 +52,19 @@ auth.login = async (req, res) => {
     return res.status(500).json({ message: e.message, error: true });
   }
 };
+
+auth.logout = async (req, res) => {
+  const transaction = await sq.transaction();
+  try {
+    const { token } = req.body;
+    await hist_login_model.destroy({ where: { token } }, {transaction});
+    req.user = null;
+    await transaction.commit();
+    return res.status(200).json({ message: "Berhasil keluar dari sistem", error: false });
+  } catch (e) {
+    await transaction.rollback();
+    return res.status(500).json({ message: e.message, error: true });
+  }
+}
 
 export default auth;
