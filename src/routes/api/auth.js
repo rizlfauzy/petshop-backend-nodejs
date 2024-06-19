@@ -1,10 +1,13 @@
 import { Router } from "express";
 import auth from "../../controllers/api/auth";
 import sidebar from "../../controllers/api/sidebar";
+import password from "../../controllers/api/password";
 import { is_login } from "../../middlewares/auth";
-import { login } from "../../utils/validator";
+import { login, check_password } from "../../utils/validator";
 
 export default Router()
   .post("/login", login, auth.login)
   .get("/sidebar", is_login, sidebar.index)
+  .get("/user", is_login, password.show)
+  .put("/user", is_login, check_password, password.update)
   .post("/logout", is_login, auth.logout);
