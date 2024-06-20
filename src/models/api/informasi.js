@@ -22,7 +22,7 @@ const informasi_model = sq.define("informasi", {
   },
   tglupdate: {
     type: Sequelize.DATE,
-    allowNull: false,
+    allowNull: true,
   }
 }, {
   freezeTableName: true,

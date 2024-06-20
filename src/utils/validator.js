@@ -39,3 +39,12 @@ export const check_password = [
     }
   },
 ]
+
+export const check_info = [
+  check("info", "Info harus diisi").notEmpty().isString(),
+  async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(500).json({ message: errors.array()[0].msg, error: true });
+    next();
+  },
+];
