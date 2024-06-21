@@ -16,30 +16,20 @@ export const is_login = async (req, res, next) => {
     delete decoded_data.exp;
     delete decoded_data.iat;
 
-    const [oto_menu] = await sq.query(`SELECT om.id, m.namamenu, m.grupmenu, m.linkmenu, m.nourut, m.urut_global, m.iconmenu, m.linkdetail, m.headermenu FROM oto_menu om left join menu m on om.nomenu = m.nomenu WHERE om.grup = '${decoded_data.mygrup}' and om.open = 't' order by m.urut_global asc`);
+    const oto_menu = await sq.query(`SELECT * FROM get_oto_menu('${decoded_data.mygrup}')`, { type: Sequelize.QueryTypes.SELECT });
     // group by grup menu with program
-    const grup_menu  = await sq.query(`SELECT DISTINCT m.grupmenu, m.urut_global, m.iconmenu, m.linkmenu, m.headermenu FROM oto_menu om left join menu m on om.nomenu = m.nomenu  WHERE om.grup = '${decoded_data.mygrup}' and om.open = 't' order by m.urut_global asc`);
-    const [oto_report] = await sq.query(`SELECT
-        DISTINCT r.kodegrup,
-        gr.nama,
-        ore.grup,
-        gr.pos
-      FROM
-          oto_report ore
-          LEFT JOIN report r on ore.report = r.kode
-          left join grup_report gr on r.kodegrup = gr.kode
-      WHERE
-          ore.grup = '${decoded_data.mygrup}'
-          and gr.aktif = 't'
-      order by
-          gr.pos asc`);
+    const grup_menu = await sq.query(
+      `SELECT * FROM get_grup_menu('${decoded_data.mygrup}')`,
+      { type: Sequelize.QueryTypes.SELECT }
+    );
+    const oto_report = await sq.query(`select * from get_oto_report('${decoded_data.mygrup}')`, { type: Sequelize.QueryTypes.SELECT });
     // get menu name from url
     const url = req.query.path;
-    const [cek_menu] = await sq.query(`SELECT open, add, update, cancel, accept, backdate FROM cari_oto_menu WHERE linkmenu = '${url}' and grup = '${decoded_data.mygrup}' and aktif = 't'`);
+    const cek_menu = await sq.query(`SELECT open, add, update, cancel, accept, backdate FROM cari_oto_menu WHERE linkmenu = '${url}' and grup = '${decoded_data.mygrup}' and aktif = 't'`, { type: Sequelize.QueryTypes.SELECT });
 
-    req.user = { ...decoded_data, oto_menu, oto_report, cek_menu: cek_menu[0] || {}, grup_menu: grup_menu[0] || {} };
+    req.user = { ...decoded_data, oto_menu, oto_report, cek_menu: cek_menu[0] || {}, grup_menu: grup_menu || {} };
     next();
   } catch (e) {
-    if (e.message == 'jwt expired') return res.status(401).json({ message: "Token expired", error: true });
+    if (e.message == "jwt expired") return res.status(401).json({ message: "Token expired", error: true });
   }
-}
+};
