@@ -19,7 +19,7 @@ info.index = async (req, res) => {
 info.save = async (req, res) => {
   const transaction = await sq.transaction();
   try {
-    const data = await informasi_model.create({ info: req.body.info, pemakai: req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD") }, { transaction });
+    const data = await informasi_model.create({ info: req.body.info, pemakai: req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss") }, { transaction });
     await transaction.commit();
     return res.status(200).json({ data, error: false, message: "Data berhasil disimpan" });
   } catch (e) {

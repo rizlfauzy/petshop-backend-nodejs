@@ -14,6 +14,7 @@ sidebar.index = async (req, res) => {
         oto_menu: req.user.oto_menu,
         oto_report: req.user.oto_report,
         cek_menu: req.user.cek_menu,
+        grup_menu: req.user.grup_menu,
       },
     });
   } catch (e) {

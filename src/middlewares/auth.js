@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import hist_login_model from "../models/hist/hist_login";
+const Sequelize = require("sequelize");
 import sq from "../db";
 require("dotenv").config();
 const { JWT_SECRET_KEY } = process.env;
@@ -15,7 +16,9 @@ export const is_login = async (req, res, next) => {
     delete decoded_data.exp;
     delete decoded_data.iat;
 
-    const [oto_menu] = await sq.query(`SELECT om.*, m.namamenu, m.linkmenu, m.nourut, m.urut_global, m.iconmenu FROM oto_menu om left join menu m on om.nomenu = m.nomenu  WHERE om.grup = '${decoded_data.mygrup}' and om.open = 't' order by m.urut_global asc`);
+    const [oto_menu] = await sq.query(`SELECT om.id, m.namamenu, m.grupmenu, m.linkmenu, m.nourut, m.urut_global, m.iconmenu, m.linkdetail, m.headermenu FROM oto_menu om left join menu m on om.nomenu = m.nomenu WHERE om.grup = '${decoded_data.mygrup}' and om.open = 't' order by m.urut_global asc`);
+    // group by grup menu with program
+    const grup_menu  = await sq.query(`SELECT DISTINCT m.grupmenu, m.urut_global, m.iconmenu, m.linkmenu, m.headermenu FROM oto_menu om left join menu m on om.nomenu = m.nomenu  WHERE om.grup = '${decoded_data.mygrup}' and om.open = 't' order by m.urut_global asc`);
     const [oto_report] = await sq.query(`SELECT
         DISTINCT r.kodegrup,
         gr.nama,
@@ -34,7 +37,7 @@ export const is_login = async (req, res, next) => {
     const url = req.query.path;
     const [cek_menu] = await sq.query(`SELECT open, add, update, cancel, accept, backdate FROM cari_oto_menu WHERE linkmenu = '${url}' and grup = '${decoded_data.mygrup}' and aktif = 't'`);
 
-    req.user = {...decoded_data, oto_menu, oto_report, cek_menu: cek_menu[0] || {}};
+    req.user = { ...decoded_data, oto_menu, oto_report, cek_menu: cek_menu[0] || {}, grup_menu: grup_menu[0] || {} };
     next();
   } catch (e) {
     if (e.message == 'jwt expired') return res.status(401).json({ message: "Token expired", error: true });
