@@ -39,6 +39,17 @@ const grup = sq.define(
   {
     freezeTableName: true,
     timestamps: false,
+    hooks: {
+      beforeCreate: (instance) => {
+        instance.nama = instance.nama.toUpperCase();
+        instance.kode = instance.kode.toUpperCase();
+        instance.pemakai = instance.pemakai.toUpperCase();
+      },
+      beforeUpdate: (instance) => {
+        instance.nama = instance.nama.toUpperCase();
+        instance.pemakai = instance.pemakai.toUpperCase();
+      },
+    },
   }
 );
 

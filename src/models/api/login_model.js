@@ -16,6 +16,7 @@ const login = sq.define(
     kodetoko: {
       type: Sequelize.STRING,
       allowNull: false,
+      defaultValue: "S000"
     },
     grup: {
       type: Sequelize.STRING,
@@ -24,10 +25,11 @@ const login = sq.define(
     aktif: {
       type: Sequelize.BOOLEAN,
       allowNull: false,
+      defaultValue: true,
     },
     alasan_non_aktif: {
       type: Sequelize.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     tgl_non_aktif: {
       type: Sequelize.DATE,
@@ -45,6 +47,20 @@ const login = sq.define(
   {
     freezeTableName: true,
     timestamps: false,
+    hooks: {
+      beforeCreate: (data) => {
+        data.username = data.username.toUpperCase();
+        data.kodetoko = data.kodetoko.toUpperCase();
+        data.grup = data.grup.toUpperCase();
+        data.pemakai = data.pemakai.toUpperCase();
+      },
+      beforeUpdate: (data) => {
+        data.username = data.username.toUpperCase();
+        data.kodetoko = data.kodetoko.toUpperCase();
+        data.grup = data.grup.toUpperCase();
+        data.pemakai = data.pemakai.toUpperCase();
+      },
+    },
   }
 );
 

@@ -28,5 +28,6 @@ export const is_login = async (req, res, next) => {
     next();
   } catch (e) {
     if (e.message == "jwt expired") return res.status(401).json({ message: "Token expired", error: true });
+    return res.status(401).json({ message: e.message, error: true });
   }
 };

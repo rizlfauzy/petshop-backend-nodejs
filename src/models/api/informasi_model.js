@@ -17,6 +17,7 @@ const informasi = sq.define(
     pemakai: {
       type: Sequelize.STRING,
       allowNull: false,
+      defaultValue: "IT"
     },
     tglsimpan: {
       type: Sequelize.DATE,
@@ -30,6 +31,13 @@ const informasi = sq.define(
   {
     freezeTableName: true,
     timestamps: false,
+    // hooks before create upper case
+    hooks: {
+      beforeCreate: (instance) => {
+        instance.info = instance.info.toUpperCase();
+        instance.pemakai = instance.pemakai.toUpperCase();
+      },
+    },
   }
 );
 

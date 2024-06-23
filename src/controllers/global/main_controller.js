@@ -4,7 +4,6 @@ const main = {
   index: async (req, res) => {
     try {
       const { body } = req;
-      // check json.parse is valid or not
       const where = JSON.parse(body.where) || body.where;
       const data = await pagination.findPage({ name: body.name, select: JSON.parse(body.select), page: parseInt(body.page), limit: parseInt(body.limit), order: JSON.parse(body.order), where, likes: JSON.parse(body.likes), keyword: body.keyword });
 
