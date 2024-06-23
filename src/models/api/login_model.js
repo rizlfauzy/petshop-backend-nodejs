@@ -1,35 +1,41 @@
 const Sequelize = require("sequelize");
-import sq from "../../db";
+import sq from "../../db.js";
 
-const grup = sq.define(
-  "grup",
+const login = sq.define(
+  "login",
   {
-    kode: {
+    username: {
       type: Sequelize.STRING,
       primaryKey: true,
       allowNull: false,
     },
-    nama: {
+    password: {
       type: Sequelize.STRING,
       allowNull: false,
     },
-    is_pusat: {
-      type: Sequelize.BOOLEAN,
-      allowNull: true,
+    kodetoko: {
+      type: Sequelize.STRING,
+      allowNull: false,
     },
-    is_edit_harga: {
-      type: Sequelize.BOOLEAN,
-      allowNull: true,
+    grup: {
+      type: Sequelize.STRING,
+      allowNull: false,
     },
     aktif: {
       type: Sequelize.BOOLEAN,
       allowNull: false,
-      defaultValue: true,
+    },
+    alasan_non_aktif: {
+      type: Sequelize.STRING,
+      allowNull: false,
+    },
+    tgl_non_aktif: {
+      type: Sequelize.DATE,
+      allowNull: true,
     },
     pemakai: {
       type: Sequelize.STRING,
       allowNull: false,
-      defaultValue: "IT",
     },
     tglsimpan: {
       type: Sequelize.DATE,
@@ -42,4 +48,4 @@ const grup = sq.define(
   }
 );
 
-export default grup;
+export default login;

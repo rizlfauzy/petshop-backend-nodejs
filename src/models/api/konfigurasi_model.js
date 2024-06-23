@@ -1,7 +1,7 @@
 const Sequelize = require("sequelize");
 import sq from "../../db";
 
-const konfigurasi_model = sq.define("konfigurasi", {
+const konfigurasi = sq.define("konfigurasi", {
   id: {
     type: Sequelize.INTEGER,
     primaryKey: true,
@@ -33,4 +33,4 @@ const konfigurasi_model = sq.define("konfigurasi", {
   timestamps: false,
 })
 
-export default konfigurasi_model;
+export default konfigurasi;

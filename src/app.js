@@ -4,7 +4,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import sq from "./db.js";
 import route from "./routes/main.js";
-import informasi_model from "./models/api/informasi.js";
+import informasi from "./models/api/informasi_model.js";
 require("dotenv").config();
 const { PREFIX_ROUTE, APP_PORT, APP_NAME, APP_URL, APP_FRONTEND_URL } = process.env;
 const app = express();
@@ -47,7 +47,7 @@ sq.authenticate()
   .catch((err) => console.log(err));
 
 io.on("connection", (socket) => {
-  console.log("a user connected");
+  // console.log("a user connected");
 
   socket.on("graph", async (data) => {
     try {
@@ -110,7 +110,7 @@ io.on("connection", (socket) => {
 
   socket.on("info", async () => {
     try {
-      const data = await informasi_model.findOne({ attributes: ["info"], order: [["id", "DESC"]] });
+      const data = await informasi.findOne({ attributes: ["info"], order: [["id", "DESC"]] });
       io.emit("info", {
         error: false,
         message: "Data berhasil diambil",

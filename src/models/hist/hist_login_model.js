@@ -1,35 +1,22 @@
 const Sequelize = require("sequelize");
 import sq from "../../db";
 
-const grup = sq.define(
-  "grup",
+const hist_login = sq.define(
+  "hist_login",
   {
-    kode: {
-      type: Sequelize.STRING,
+    id: {
+      type: Sequelize.INTEGER,
       primaryKey: true,
       allowNull: false,
+      autoIncrement: true,
     },
-    nama: {
+    token: {
       type: Sequelize.STRING,
       allowNull: false,
-    },
-    is_pusat: {
-      type: Sequelize.BOOLEAN,
-      allowNull: true,
-    },
-    is_edit_harga: {
-      type: Sequelize.BOOLEAN,
-      allowNull: true,
-    },
-    aktif: {
-      type: Sequelize.BOOLEAN,
-      allowNull: false,
-      defaultValue: true,
     },
     pemakai: {
       type: Sequelize.STRING,
       allowNull: false,
-      defaultValue: "IT",
     },
     tglsimpan: {
       type: Sequelize.DATE,
@@ -42,4 +29,4 @@ const grup = sq.define(
   }
 );
 
-export default grup;
+export default hist_login;

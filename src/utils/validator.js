@@ -1,7 +1,8 @@
 import { body, check, validationResult } from "express-validator";
-import login_model from "../models/api/login";
+import login from "../models/api/login_model";
+import grup from "../models/api/grup_model";
 
-export const login = [
+export const check_login = [
   check("username", "Username harus diisi").notEmpty().isString(),
   check("password", "Password harus diisi").notEmpty().isString(),
   async (req, res, next) => {
@@ -9,15 +10,30 @@ export const login = [
       const { username, password } = req.body;
       // encode password base64
       const enc_pass = encodeURIComponent(btoa(password));
-      const user = await login_model.findOne({ where: { username: username.toUpperCase() } });
+      const user = await login.findOne({ where: { username: username.toUpperCase() } });
       if (!user) throw new Error("Username tidak ditemukan");
       if (user.password !== enc_pass) throw new Error("Password salah");
       const errors = validationResult(req);
       if (!errors.isEmpty()) throw new Error(errors.array()[0].msg);
       next();
     } catch (e) {
-      return res.status(500).json({ message: e.message, error: true,e });
+      return res.status(500).json({ message: e.message, error: true, e });
     }
+  },
+];
+
+export const check_page = [
+  check("page", "Page harus diisi").notEmpty().isInt(),
+  check("limit", "Limit harus diisi").notEmpty().isInt(),
+  check("name", "Nama harus diisi").notEmpty().isString(),
+  check("select", "Select harus diisi").notEmpty().isString(),
+  check("order", "Order harus diisi").notEmpty().isString(),
+  check("where", "Where harus diisi").notEmpty().isString(),
+  check("likes", "Likes harus diisi").notEmpty().isString(),
+  async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(500).json({ message: errors.array()[0].msg, error: true });
+    next();
   },
 ];
 
@@ -29,7 +45,7 @@ export const check_password = [
       const { username, password } = req.body;
       // encode password base64
       const enc_pass = encodeURIComponent(btoa(password));
-      const user = await login_model.findOne({ where: { username: username.toUpperCase(), password: enc_pass } });
+      const user = await login.findOne({ where: { username: username.toUpperCase(), password: enc_pass } });
       if (user) throw new Error("Pasword sama dengan sebelumnya");
       const errors = validationResult(req);
       if (!errors.isEmpty()) throw new Error(errors.array()[0].msg);
@@ -38,7 +54,7 @@ export const check_password = [
       return res.status(500).json({ message: e.message, error: true });
     }
   },
-]
+];
 
 export const check_info = [
   check("info", "Info harus diisi").notEmpty().isString(),
@@ -46,5 +62,40 @@ export const check_info = [
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(500).json({ message: errors.array()[0].msg, error: true });
     next();
+  },
+];
+
+export const check_save_grup = [
+  check("kode", "Kode harus diisi").notEmpty().isString(),
+  check("nama", "Nama harus diisi").notEmpty().isString(),
+  async (req, res, next) => {
+    try {
+      const { kode } = req.body;
+      const check = await grup.findOne({ where: { kode: kode.toUpperCase() } });
+      if (check) throw new Error("Kode sudah digunakan");
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) throw new Error(errors.array()[0].msg);
+      next();
+    } catch (e) {
+      return res.status(500).json({ message: e.message, error: true });
+    }
+  },
+];
+
+export const check_update_grup = [
+  check("kode", "Kode harus diisi").notEmpty().isString(),
+  check("nama", "Nama harus diisi").notEmpty().isString(),
+  check("aktif", "Aktif harus diisi").notEmpty().isBoolean(),
+  async (req, res, next) => {
+    try {
+      const { kode } = req.body;
+      const check = await grup.findOne({ where: { kode: kode.toUpperCase() } });
+      if (!check) throw new Error("Kode tidak ditemukan");
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) throw new Error(errors.array()[0].msg);
+      next();
+    } catch (e) {
+      return res.status(500).json({ message: e.message, error: true });
+    }
   },
 ];
