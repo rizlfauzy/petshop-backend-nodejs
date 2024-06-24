@@ -3,6 +3,7 @@ import login from "../models/api/login_model";
 import grup from "../models/api/grup_model";
 import { Op } from "sequelize";
 import satuan from "../models/api/satuan_model";
+import kategori from "../models/api/kategori_model";
 
 export const check_login = [
   check("username", "Username harus diisi").notEmpty().isString(),
@@ -169,6 +170,47 @@ export const check_update_satuan = [
     try {
       const { kode, nama } = req.body;
       const check = await satuan.findOne({
+        where: {
+          nama: nama.toUpperCase(),
+          kode: {
+            [Op.ne]: kode.toUpperCase(),
+          },
+        }
+      })
+      if (check) throw new Error("Nama sudah digunakan");
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) throw new Error(errors.array()[0].msg);
+      next();
+    } catch (e) {
+      return res.status(500).json({ message: e.message, error: true });
+    }
+  },
+];
+
+export const check_save_kategori = [
+  check("nama", "Nama harus diisi").notEmpty().isString(),
+  async (req, res, next) => {
+    try {
+      const { nama } = req.body;
+      const check = await kategori.findOne({ where: { nama: nama.toUpperCase() } });
+      if (check) throw new Error("Nama sudah digunakan");
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) throw new Error(errors.array()[0].msg);
+      next();
+    } catch (e) {
+      return res.status(500).json({ message: e.message, error: true });
+    }
+  },
+];
+
+export const check_update_kategori = [
+  check("kode", "Kode harus diisi").notEmpty().isString(),
+  check("nama", "Nama harus diisi").notEmpty().isString(),
+  check("aktif", "Aktif harus diisi").notEmpty().isBoolean(),
+  async (req, res, next) => {
+    try {
+      const { kode, nama } = req.body;
+      const check = await kategori.findOne({
         where: {
           nama: nama.toUpperCase(),
           kode: {

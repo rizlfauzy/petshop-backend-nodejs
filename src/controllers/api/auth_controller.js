@@ -84,7 +84,7 @@ const auth_cont = {
     try {
       const { username, password, kode_grup: grup, aktif } = req.body;
       const enc_pass = encodeURIComponent(btoa(password));
-      await login.update({ password: enc_pass, grup, aktif }, { where: { username: username.toUpperCase() }, transaction });
+      await login.update({ password: enc_pass, pemakai: req.user.myusername.toUpperCase(), grup, aktif }, { where: { username: username.toUpperCase() }, transaction });
       await transaction.commit();
       return res.status(200).json({ error: false, message: "Data berhasil diubah" });
     } catch (e) {

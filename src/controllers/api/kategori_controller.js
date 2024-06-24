@@ -1,14 +1,15 @@
-import grup from "../../models/api/grup_model";
+import kategori from "../../models/api/kategori_model";
 import sq from "../../db";
 import moment from "moment";
+import generate_kode from "../../utils/generate_kode";
 moment.locale("id");
 
-const grup_cont = {
+const kategori_cont = {
   one: async (req, res) => {
     const transaction = await sq.transaction();
     try {
       const { kode } = req.query;
-      const data = await grup.findOne({ attributes: ["nama", "kode", "aktif"],where: { kode }, transaction });
+      const data = await kategori.findOne({ attributes: ["nama", "kode", "aktif"], where: { kode }, transaction });
       await transaction.commit();
       return res.status(200).json({ data, error: false, message: "Data berhasil diambil" });
     } catch (e) {
@@ -19,8 +20,9 @@ const grup_cont = {
   save: async (req, res) => {
     const transaction = await sq.transaction();
     try {
-      const { nama, kode } = req.body;
-      await grup.create({ nama: nama.toUpperCase(), kode: kode.toUpperCase(), aktif: true, pemakai: req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss") }, { transaction });
+      const { nama } = req.body;
+      const kode = await generate_kode("kategori", "KT", "kode", 2, "00001", 5);
+      await kategori.create({ nama: nama.toUpperCase(), kode: kode.toUpperCase(), aktif: true, pemakai: req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss") }, { transaction });
       await transaction.commit();
       return res.status(200).json({ error: false, message: "Data berhasil disimpan" });
     } catch (e) {
@@ -32,7 +34,7 @@ const grup_cont = {
     const transaction = await sq.transaction();
     try {
       const { nama, kode, aktif } = req.body;
-      await grup.update({ nama: nama.toUpperCase(), pemakai: req.user.myusername.toUpperCase(), aktif }, { where: { kode }, transaction });
+      await kategori.update({ nama: nama.toUpperCase(), pemakai: req.user.myusername.toUpperCase(), aktif }, { where: { kode }, transaction });
       await transaction.commit();
       return res.status(200).json({ error: false, message: "Data berhasil diubah" });
     } catch (e) {
@@ -40,6 +42,6 @@ const grup_cont = {
       return res.status(500).json({ message: e.message, error: true });
     }
   },
-}
+};
 
-export default grup_cont;
+export default kategori_cont;
