@@ -9,7 +9,7 @@ const satuan_cont = {
     const transaction = await sq.transaction();
     try {
       const { kode } = req.query;
-      const data = await satuan.findOne({ attributes: ["nama", "kode", "aktif"], where: { kode }, transaction });
+      const data = await satuan.findOne({ attributes: ["nama", "kode", "aktif"], where: { kode: kode.toUpperCase() }, transaction });
       await transaction.commit();
       return res.status(200).json({ data, error: false, message: "Data berhasil diambil" });
     } catch (e) {
@@ -34,7 +34,7 @@ const satuan_cont = {
     const transaction = await sq.transaction();
     try {
       const { nama, kode, aktif } = req.body;
-      await satuan.update({ nama: nama.toUpperCase(), pemakai: req.user.myusername.toUpperCase(), aktif }, { where: { kode }, transaction });
+      await satuan.update({ nama: nama.toUpperCase(), pemakai: req.user.myusername.toUpperCase(), aktif, tglupdate: moment().format("YYYY-MM-DD HH:mm:ss") }, { where: { kode }, transaction });
       await transaction.commit();
       return res.status(200).json({ error: false, message: "Data berhasil diubah" });
     } catch (e) {

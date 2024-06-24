@@ -4,6 +4,7 @@ import grup from "../models/api/grup_model";
 import { Op } from "sequelize";
 import satuan from "../models/api/satuan_model";
 import kategori from "../models/api/kategori_model";
+import barang from "../models/api/barang_model";
 
 export const check_login = [
   check("username", "Username harus diisi").notEmpty().isString(),
@@ -219,6 +220,65 @@ export const check_update_kategori = [
         }
       })
       if (check) throw new Error("Nama sudah digunakan");
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) throw new Error(errors.array()[0].msg);
+      next();
+    } catch (e) {
+      return res.status(500).json({ message: e.message, error: true });
+    }
+  },
+];
+
+export const check_save_barang = [
+  check("barcode", "Barcode harus diisi").notEmpty().isString(),
+  check("nama", "Nama harus diisi").notEmpty().isString(),
+  check("satuan", "Satuan harus diisi").notEmpty().isString(),
+  check("kategori", "Kategori harus diisi").notEmpty().isString(),
+  check("min_stock", "Min Stock harus diisi").notEmpty().isInt(),
+  check("disc", "Disc harus diisi").notEmpty().isInt(),
+  check("harga_jual", "Harga Jual harus diisi").notEmpty().isInt(),
+  check("harga_modal", "Harga Modal harus diisi").notEmpty().isInt(),
+  check("keterangan", "Keterangan harus diisi").notEmpty().isString(),
+  async (req, res, next) => {
+    try {
+      const { barcode } = req.body;
+      const check = await barang.findOne({ where: { barcode: barcode.toUpperCase() } });
+      if (check) throw new Error("Barcode sudah digunakan");
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) throw new Error(errors.array()[0].msg);
+      next();
+    } catch (e) {
+      return res.status(500).json({ message: e.message, error: true });
+    }
+  },
+];
+
+export const check_update_barang = [
+  check("old_barcode", "Old Barcode harus diisi").notEmpty().isString(),
+  check("barcode", "Barcode harus diisi").notEmpty().isString(),
+  check("nama", "Nama harus diisi").notEmpty().isString(),
+  check("satuan", "Satuan harus diisi").notEmpty().isString(),
+  check("kategori", "Kategori harus diisi").notEmpty().isString(),
+  check("min_stock", "Min Stock harus diisi").notEmpty().isInt(),
+  check("disc", "Disc harus diisi").notEmpty().isInt(),
+  check("harga_jual", "Harga Jual harus diisi").notEmpty().isInt(),
+  check("harga_modal", "Harga Modal harus diisi").notEmpty().isInt(),
+  check("keterangan", "Keterangan harus diisi").notEmpty().isString(),
+  check("aktif", "Aktif harus diisi").notEmpty().isBoolean(),
+  async (req, res, next) => {
+    try {
+      const { old_barcode, barcode } = req.body;
+      const check = await barang.findOne({ where: { barcode: old_barcode.toUpperCase() } });
+      if (!check) throw new Error("Barcode tidak ditemukan");
+      const duplicate = await barang.findOne({
+        where: {
+          barcode: barcode.toUpperCase(),
+          barcode: {
+            [Op.ne]: old_barcode.toUpperCase(),
+          },
+        }
+      })
+      if (duplicate) throw new Error("Barcode sudah digunakan");
       const errors = validationResult(req);
       if (!errors.isEmpty()) throw new Error(errors.array()[0].msg);
       next();

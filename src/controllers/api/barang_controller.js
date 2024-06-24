@@ -1,15 +1,15 @@
-import kategori from "../../models/api/kategori_model";
+import barang from "../../models/api/barang_model";
+import cari_barang_view from "../../models/api/cari_barang_model";
 import sq from "../../db";
 import moment from "moment";
-import generate_kode from "../../utils/generate_kode";
 moment.locale("id");
 
-const kategori_cont = {
+const barang_cont = {
   one: async (req, res) => {
     const transaction = await sq.transaction();
     try {
-      const { kode } = req.query;
-      const data = await kategori.findOne({ attributes: ["nama", "kode", "aktif"], where: { kode: kode.toUpperCase() }, transaction });
+      const { barcode } = req.query;
+      const data = await cari_barang_view.findOne({ where: { barcode: barcode.toUpperCase() }, transaction });
       await transaction.commit();
       return res.status(200).json({ data, error: false, message: "Data berhasil diambil" });
     } catch (e) {
@@ -20,9 +20,8 @@ const kategori_cont = {
   save: async (req, res) => {
     const transaction = await sq.transaction();
     try {
-      const { nama } = req.body;
-      const kode = await generate_kode("kategori", "KT", "kode", 2, "00001", 5);
-      await kategori.create({ nama: nama.toUpperCase(), kode: kode.toUpperCase(), aktif: true, pemakai: req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss") }, { transaction });
+      const { barcode, nama, satuan, kategori, min_stock, disc, harga_jual, harga_modal, keterangan } = req.body;
+      await barang.create({ barcode, nama, satuan, kategori, min_stock, disc, harga_jual, harga_modal, keterangan, aktif: true, pemakai: req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss") }, { transaction });
       await transaction.commit();
       return res.status(200).json({ error: false, message: "Data berhasil disimpan" });
     } catch (e) {
@@ -33,8 +32,11 @@ const kategori_cont = {
   update: async (req, res) => {
     const transaction = await sq.transaction();
     try {
-      const { nama, kode, aktif } = req.body;
-      await kategori.update({ nama: nama.toUpperCase(), pemakai: req.user.myusername.toUpperCase(), aktif, tglupdate: moment().format("YYYY-MM-DD HH:mm:ss") }, { where: { kode }, transaction });
+      const { barcode, nama, satuan, kategori, min_stock, disc, harga_jual, harga_modal, keterangan, aktif } = req.body;
+      await barang.update(
+        { nama, satuan, kategori, min_stock, disc, harga_jual, harga_modal, keterangan, aktif, pemakai: req.user.myusername.toUpperCase(), tglupdate: moment().format("YYYY-MM-DD HH:mm:ss") },
+        { where: { barcode }, transaction }
+      );
       await transaction.commit();
       return res.status(200).json({ error: false, message: "Data berhasil diubah" });
     } catch (e) {
@@ -42,6 +44,6 @@ const kategori_cont = {
       return res.status(500).json({ message: e.message, error: true });
     }
   },
-};
+}
 
-export default kategori_cont;
+export default barang_cont;

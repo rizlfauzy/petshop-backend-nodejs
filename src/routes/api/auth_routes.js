@@ -7,8 +7,9 @@ import grup_cont from "../../controllers/api/grup_controller";
 import main from "../../controllers/global/main_controller";
 import satuan_cont from "../../controllers/api/satuan_controller";
 import kategori_cont from "../../controllers/api/kategori_controller";
+import barang_cont from "../../controllers/api/barang_controller";
 import { is_login } from "../../middlewares/auth";
-import { check_login, check_password, check_info, check_page, check_save_grup, check_update_grup, check_register_user, check_update_user, check_save_satuan, check_update_satuan, check_save_kategori, check_update_kategori } from "../../utils/validator";
+import { check_login, check_password, check_info, check_page, check_save_grup, check_update_grup, check_register_user, check_update_user, check_save_satuan, check_update_satuan, check_save_kategori, check_update_kategori, check_save_barang, check_update_barang } from "../../utils/validator";
 
 export default Router()
   .post("/login", check_login, auth_cont.login)
@@ -30,4 +31,7 @@ export default Router()
   .get("/kategori", is_login, kategori_cont.one)
   .post("/kategori", is_login, check_save_kategori, kategori_cont.save)
   .put("/kategori", is_login, check_update_kategori, kategori_cont.update)
+  .get("/barang", is_login, barang_cont.one)
+  .post("/barang", is_login, check_save_barang, barang_cont.save)
+  .put("/barang", is_login, check_update_barang, barang_cont.update)
   .post("/logout", is_login, auth_cont.logout);
