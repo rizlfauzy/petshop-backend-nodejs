@@ -34,7 +34,6 @@ const pagination = {
       const totalPage = Math.ceil(data.count / limit);
       resolve({ list: data.rows, totalPage, totalItem: data.count, currentPage: page });
     } catch (e) {
-      console.log(e);
       reject(e);
     }
   })
