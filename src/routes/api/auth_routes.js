@@ -35,4 +35,6 @@ export default Router()
   .get("/goods", is_login, barang_cont.all)
   .post("/barang", is_login, check_save_barang, barang_cont.save)
   .put("/barang", is_login, check_update_barang, barang_cont.update)
+  .get("/goods/excel", is_login, barang_cont.excel)
+  .post("/goods/import", is_login, barang_cont.import)
   .post("/logout", is_login, auth_cont.logout);
