@@ -32,6 +32,7 @@ export default Router()
   .post("/kategori", is_login, check_save_kategori, kategori_cont.save)
   .put("/kategori", is_login, check_update_kategori, kategori_cont.update)
   .get("/barang", is_login, barang_cont.one)
+  .get("/goods", is_login, barang_cont.all)
   .post("/barang", is_login, check_save_barang, barang_cont.save)
   .put("/barang", is_login, check_update_barang, barang_cont.update)
   .post("/logout", is_login, auth_cont.logout);
