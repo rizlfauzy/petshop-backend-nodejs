@@ -5,7 +5,7 @@ import sq from "../../db";
 import moment from "moment";
 import { clear_char, clear_alphabet } from "../../utils/clear";
 import excelJS from "exceljs";
-import fs from "fs";
+const fs = require("fs");
 moment.locale("id");
 
 const barang_cont = {
@@ -178,6 +178,7 @@ const barang_cont = {
       }
 
       // cek jika folder belum ada
+      if (!fs.existsSync("./public/")) fs.mkdirSync("./public/");
       if (!fs.existsSync(path)) fs.mkdirSync(path);
       const name_file = `laporan_list_barang_${moment().format("YYYYMMDDHHmm")}`;
       const url = `${path.split("/")[2]}/${name_file}.xlsx`
