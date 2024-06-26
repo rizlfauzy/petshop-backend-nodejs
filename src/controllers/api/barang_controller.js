@@ -1,5 +1,6 @@
 import barang from "../../models/api/barang_model";
 import cari_barang_view from "../../models/api/cari_barang_model";
+import inventory_barang from "../../models/api/inventory_barang_model";
 import sq from "../../db";
 import moment from "moment";
 import { clear_char, clear_alphabet } from "../../utils/clear";
@@ -52,6 +53,18 @@ const barang_cont = {
         },
         { transaction }
       );
+      await inventory_barang.create(
+        {
+          periode: moment().format("YYYYMM"),
+          barcode: barcode.toUpperCase(),
+          qty_awal: 0,
+          qty_masuk: 0,
+          qty_keluar: 0,
+          pemakai: req.user.myusername.toUpperCase(),
+          tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss"),
+        },
+        { transaction }
+      );
       await transaction.commit();
       return res.status(200).json({ error: false, message: "Data berhasil disimpan" });
     } catch (e) {
@@ -79,6 +92,21 @@ const barang_cont = {
         },
         { where: { barcode: barcode.toUpperCase() }, transaction }
       );
+      const check_stock = await inventory_barang.findOne({ where: { barcode: barcode.toUpperCase(), periode: moment().format("YYYYMM") }, transaction });
+      if (!check_stock) {
+        await inventory_barang.create(
+          {
+            periode: moment().format("YYYYMM"),
+            barcode: barcode.toUpperCase(),
+            qty_awal: 0,
+            qty_masuk: 0,
+            qty_keluar: 0,
+            pemakai: req.user.myusername.toUpperCase(),
+            tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss"),
+          },
+          { transaction }
+        );
+      }
       await transaction.commit();
       return res.status(200).json({ error: false, message: "Data berhasil diubah" });
     } catch (e) {

@@ -3,6 +3,8 @@ import sq from "../../db.js";
 import login from "../../models/api/login_model.js";
 import hist_login from "../../models/hist/hist_login_model.js";
 import konfigurasi from "../../models/api/konfigurasi_model.js";
+import cari_barang_view from "../../models/api/cari_barang_model.js";
+import inventory_barang from "../../models/api/inventory_barang_model.js";
 import moment from "moment";
 require("dotenv").config();
 const Sequelize = require("sequelize");
@@ -41,8 +43,79 @@ const auth_cont = {
         { transaction: trans }
       );
 
-      await trans.commit();
+      const goods = await cari_barang_view.findAll(
+        {
+          attributes: ["barcode"],
+          where: {
+            aktif: true,
+          },
+        },
+        {
+          transaction: trans,
+        }
+      );
 
+      if (goods.length > 0) {
+        for (const good of goods) {
+          const stocks_now = await inventory_barang.findAll(
+            {
+              attributes: ["barcode", "qty_awal", "qty_masuk", "qty_keluar"],
+              where: {
+                periode: moment().format("YYYYMM"),
+                barcode: good.barcode,
+              },
+            },
+            {
+              transaction: trans,
+            }
+          );
+          if (stocks_now.length < 1) {
+            const stocks_before = await inventory_barang.findAll(
+              {
+                attributes: ["barcode", "qty_awal", "qty_masuk", "qty_keluar"],
+                where: {
+                  periode: {
+                    [Sequelize.Op.lt]: moment().format("YYYYMM"),
+                  },
+                  barcode: good.barcode,
+                },
+                order: [
+                  ["periode", "desc"]
+                ],
+                limit: 1
+              },
+              {
+                transaction: trans,
+              }
+            );
+            if (stocks_before.length > 0) {
+              await inventory_barang.create({
+                barcode: good.barcode.toUpperCase(),
+                periode: moment().format("YYYYMM"),
+                qty_awal: Number(stocks_before[0].qty_awal) + Number(stocks_before[0].qty_masuk) - Number(stocks_before[0].qty_keluar),
+                qty_masuk: 0,
+                qty_keluar: 0,
+                pemakai: username.toUpperCase(),
+                tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss"),
+              }, {transaction: trans});
+            } else {
+              await inventory_barang.create({
+                barcode: good.barcode.toUpperCase(),
+                periode: moment().format("YYYYMM"),
+                qty_awal: 0,
+                qty_masuk: 0,
+                qty_keluar: 0,
+                pemakai: username.toUpperCase(),
+                tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss"),
+              }, {
+                transaction: trans
+              });
+            }
+          }
+        }
+      }
+
+      await trans.commit();
       return res.status(200).json({
         message: "Berhasil masuk ke halaman utama",
         error: false,
@@ -58,9 +131,9 @@ const auth_cont = {
     try {
       const { username } = req.query;
       const data = await sq.query(`SELECT * FROM cari_user where username = :username`, { replacements: { username: username.toUpperCase() }, type: Sequelize.QueryTypes.SELECT, transaction });
-      const password = data[0] ? decodeURIComponent(atob(data[0].password)) : '';
+      const password = data[0] ? decodeURIComponent(atob(data[0].password)) : "";
       await transaction.commit();
-      return res.status(200).json({ data: {...data[0], password} || {}, error: false, message: "Data berhasil diambil" });
+      return res.status(200).json({ data: { ...data[0], password } || {}, error: false, message: "Data berhasil diambil" });
     } catch (e) {
       await transaction.rollback();
       return res.status(500).json({ message: e.message, error: true });
