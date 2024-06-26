@@ -8,8 +8,11 @@ import main from "../../controllers/global/main_controller";
 import satuan_cont from "../../controllers/api/satuan_controller";
 import kategori_cont from "../../controllers/api/kategori_controller";
 import barang_cont from "../../controllers/api/barang_controller";
+import multer from "multer";
 import { is_login } from "../../middlewares/auth";
 import { check_login, check_password, check_info, check_page, check_save_grup, check_update_grup, check_register_user, check_update_user, check_save_satuan, check_update_satuan, check_save_kategori, check_update_kategori, check_save_barang, check_update_barang } from "../../utils/validator";
+
+const upload = multer({ dest: "./public" });
 
 export default Router()
   .post("/login", check_login, auth_cont.login)
@@ -36,5 +39,5 @@ export default Router()
   .post("/barang", is_login, check_save_barang, barang_cont.save)
   .put("/barang", is_login, check_update_barang, barang_cont.update)
   .get("/goods/excel", is_login, barang_cont.excel)
-  .post("/goods/import", is_login, barang_cont.import)
+  .post("/goods/import", is_login, upload.single("file_xlsx"), barang_cont.import)
   .post("/logout", is_login, auth_cont.logout);
