@@ -43,4 +43,5 @@ export default Router()
   .post("/goods/import", is_login, upload.single("file_xlsx"), barang_cont.import)
   .get("/otority/menus", is_login, otority_cont.all_menu)
   .get("/otority/find-menu", is_login, otority_cont.likes_menu)
+  .get("/otority/menu", is_login, otority_cont.menu_role)
   .post("/logout", is_login, auth_cont.logout);
