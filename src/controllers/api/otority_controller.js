@@ -47,6 +47,9 @@ const otority_cont = {
         attributes: ["grupmenu", "nomenu", "namamenu"],
         where: {
           aktif: true,
+          nomenu: {
+            [Op.ne]: "M008",
+          },
           [Op.or]: {
             namamenu: { [Op.iLike]: `%${req.query.q}%` },
             nomenu: {
@@ -72,13 +75,13 @@ const otority_cont = {
   },
   save: async (req, res) => {
     try {
-      const { grup, nomenu, add, update, cancel } = req.body;
-      const data = await oto_menu.findOne({ where: { grup, nomenu } });
-      if (data) {
-        await oto_menu.update({ add, update, cancel }, { where: { grup, nomenu } });
-      } else {
-        await oto_menu.create({ grup, nomenu, add, update, cancel });
-      }
+      const { kode_grup } = req.body;
+      const menus = JSON.parse(req.body.menus);
+      await oto_menu.destroy({ where: { grup: kode_grup } });
+      menus.forEach(async (item) => {
+        const { nomenu, add, update, cancel } = item;
+        await oto_menu.create({ grup:kode_grup, nomenu, add, update, cancel, open: true });
+      });
       return res.status(200).json({ error: false, message: "Data berhasil disimpan" });
     } catch (error) {
       res.status(500).json({ message: error.message, error: true });

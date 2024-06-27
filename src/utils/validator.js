@@ -285,3 +285,18 @@ export const check_update_barang = [
     }
   },
 ];
+
+export const check_save_otority = [
+  check("kode_grup", "Mohon pilih nama grup terlebih dahulu !!!").notEmpty().isString(),
+  async (req, res, next) => {
+    try {
+      const menus = JSON.parse(req.body.menus);
+      if (menus.length === 0) throw new Error("Harus pilih menu !!!");
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) throw new Error(errors.array()[0].msg);
+      next();
+    } catch (e) {
+      return res.status(500).json({ message: e.message, error: true });
+    }
+  },
+];
