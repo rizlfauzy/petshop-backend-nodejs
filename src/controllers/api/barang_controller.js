@@ -1,5 +1,6 @@
 import barang from "../../models/api/barang_model";
 import cari_barang_view from "../../models/api/cari_barang_model";
+import cari_stock_barang from "../../models/api/cari_stock_barang";
 import inventory_barang from "../../models/api/inventory_barang_model";
 import satuan from "../../models/api/satuan_model";
 import kategori from "../../models/api/kategori_model";
@@ -17,6 +18,18 @@ const barang_cont = {
     try {
       const { barcode } = req.query;
       const data = await cari_barang_view.findOne({ where: { barcode: barcode.toUpperCase() }, transaction });
+      await transaction.commit();
+      return res.status(200).json({ data, error: false, message: "Data berhasil diambil" });
+    } catch (e) {
+      await transaction.rollback();
+      return res.status(500).json({ message: e.message, error: true });
+    }
+  },
+  one_stock: async (req, res) => {
+    const transaction = await sq.transaction();
+    try {
+      const { barcode } = req.query;
+      const data = await cari_stock_barang.findOne({ attributes:["barcode", "nama_barang", "stock"],where: { barcode: barcode.toUpperCase(), periode: moment().format("YYYYMM") }, transaction });
       await transaction.commit();
       return res.status(200).json({ data, error: false, message: "Data berhasil diambil" });
     } catch (e) {

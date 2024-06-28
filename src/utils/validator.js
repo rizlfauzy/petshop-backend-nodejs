@@ -292,6 +292,9 @@ export const check_save_otority = [
     try {
       const menus = JSON.parse(req.body.menus);
       if (menus.length === 0) throw new Error("Harus pilih menu !!!");
+      menus.forEach(item => {
+        if (!item.add && !item.update && !item.cancel) throw new Error("Harus pilih akses menu !!!");
+      })
       const errors = validationResult(req);
       if (!errors.isEmpty()) throw new Error(errors.array()[0].msg);
       next();

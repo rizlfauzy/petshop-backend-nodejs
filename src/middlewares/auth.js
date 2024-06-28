@@ -22,7 +22,7 @@ export const is_login = async (req, res, next) => {
     const oto_report = await sq.query(`select * from get_oto_report('${decoded_data.mygrup}')`, { type: Sequelize.QueryTypes.SELECT });
     // get menu name from url
     const url = req.query.path;
-    const cek_menu = await sq.query(`SELECT open, add, update, cancel, accept, backdate FROM cari_oto_menu WHERE linkmenu = '${url}' and grup = '${decoded_data.mygrup}' and aktif = 't'`, { type: Sequelize.QueryTypes.SELECT });
+    const cek_menu = await sq.query(`SELECT open, add, update, cancel, accept, backdate FROM cari_oto_menu WHERE (linkmenu = '${url}' or linkdetail = '${url}') and grup = '${decoded_data.mygrup}' and aktif = 't'`, { type: Sequelize.QueryTypes.SELECT });
 
     req.user = { ...decoded_data, oto_menu, oto_report, cek_menu: cek_menu[0] || {}, grup_menu: grup_menu || {} };
     next();
