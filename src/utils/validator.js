@@ -321,7 +321,7 @@ export const check_save_order = [
         const check_real = await cari_stock_real_barang.findOne({ attributes:["periode", "barcode", "awal", "masuk", "keluar"],where: { barcode: barang.barcode, periode } });
         if (check && check_real) {
           const stock = Number(check.stock);
-          const stock_real = Number(check_real.awal + check_real.masuk - check_real.keluar);
+          const stock_real = Number(Number(check_real.awal) + Number(check_real.masuk) - Number(check_real.keluar));
           if (stock_real != stock) throw new Error("Stock tidak sama !!!");
         }
       }
