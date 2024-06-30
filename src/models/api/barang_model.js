@@ -64,24 +64,6 @@ const barang = sq.define(
   {
     freezeTableName: true,
     timestamps: false,
-    hooks: {
-      beforeCreate: (instance) => {
-        instance.nama = instance.nama.toUpperCase();
-        instance.satuan = instance.satuan.toUpperCase();
-        instance.kategori = instance.kategori.toUpperCase();
-        instance.keterangan = instance.keterangan.toUpperCase();
-        instance.barcode = instance.barcode.toUpperCase();
-        instance.pemakai = instance.pemakai.toUpperCase();
-      },
-      beforeUpdate: (instance) => {
-        instance.nama = instance.nama.toUpperCase();
-        instance.satuan = instance.satuan.toUpperCase();
-        instance.kategori = instance.kategori.toUpperCase();
-        instance.keterangan = instance.keterangan.toUpperCase();
-        instance.barcode = instance.barcode.toUpperCase();
-        instance.pemakai = instance.pemakai.toUpperCase();
-      },
-    }
   }
 );
 

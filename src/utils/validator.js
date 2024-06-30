@@ -5,6 +5,9 @@ import { Op } from "sequelize";
 import satuan from "../models/api/satuan_model";
 import kategori from "../models/api/kategori_model";
 import barang from "../models/api/barang_model";
+import cari_stock_barang from "../models/api/cari_stock_barang";
+import cari_stock_real_barang from "../models/api/cari_stock_real_barang";
+import moment from "moment";
 
 export const check_login = [
   check("username", "Username harus diisi").notEmpty().isString(),
@@ -300,6 +303,32 @@ export const check_save_otority = [
       next();
     } catch (e) {
       return res.status(500).json({ message: e.message, error: true });
+    }
+  },
+];
+
+export const check_save_order = [
+  check("tanggal", "Tanggal harus diisi").notEmpty().isString(),
+  async (req, res, next) => {
+    try {
+      const { tanggal } = req.body;
+      const list_barang = JSON.parse(req.body.list_barang);
+      if (list_barang.length === 0) throw new Error("Harus input barang !!!");
+      const errors = validationResult(req);
+      const periode = moment(tanggal).format("YYYYMM");
+      for (const barang of list_barang) {
+        const check = await cari_stock_barang.findOne({ attributes: ["periode", "barcode", "stock"],where: { barcode: barang.barcode, periode } });
+        const check_real = await cari_stock_real_barang.findOne({ attributes:["periode", "barcode", "awal", "masuk", "keluar"],where: { barcode: barang.barcode, periode } });
+        if (check && check_real) {
+          const stock = Number(check.stock);
+          const stock_real = Number(check_real.awal + check_real.masuk - check_real.keluar);
+          if (stock_real != stock) throw new Error("Stock tidak sama !!!");
+        }
+      }
+      if (!errors.isEmpty()) throw new Error(errors.array()[0].msg);
+      next();
+    } catch (e) {
+      return res.status(500).json({ message: e.message, error: true, e });
     }
   },
 ];

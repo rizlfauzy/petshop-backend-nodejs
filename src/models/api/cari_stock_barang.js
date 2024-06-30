@@ -29,6 +29,14 @@ cari_stock_barang.init(
       type: Sequelize.NUMBER,
       allowNull: false,
     },
+    harga_modal: {
+      type: Sequelize.NUMBER,
+      allowNull: false,
+    },
+    harga_jual: {
+      type: Sequelize.NUMBER,
+      allowNull: false,
+    },
   },
   {
     sequelize: sq,
