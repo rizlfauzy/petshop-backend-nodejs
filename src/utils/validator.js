@@ -332,3 +332,44 @@ export const check_save_order = [
     }
   },
 ];
+
+export const check_update_order = [
+  check("nomor", "Nomor harus diisi").notEmpty().isString(),
+  check("tanggal", "Tanggal harus diisi").notEmpty().isString(),
+  async (req, res, next) => {
+    try {
+      const { tanggal } = req.body;
+      const list_barang = JSON.parse(req.body.list_barang);
+      if (list_barang.length === 0) throw new Error("Harus input barang !!!");
+      const errors = validationResult(req);
+      const periode = moment(tanggal).format("YYYYMM");
+      for (const barang of list_barang) {
+        const check = await cari_stock_barang.findOne({ attributes: ["periode", "barcode", "stock"],where: { barcode: barang.barcode, periode } });
+        const check_real = await cari_stock_real_barang.findOne({ attributes:["periode", "barcode", "awal", "masuk", "keluar"],where: { barcode: barang.barcode, periode } });
+        if (check && check_real) {
+          const stock = Number(check.stock);
+          const stock_real = Number(Number(check_real.awal) + Number(check_real.masuk) - Number(check_real.keluar));
+          if (stock_real != stock) throw new Error("Stock tidak sama !!!");
+        }
+      }
+      if (!errors.isEmpty()) throw new Error(errors.array()[0].msg);
+      next();
+    } catch (e) {
+      return res.status(500).json({ message: e.message, error: true, e });
+    }
+  },
+]
+
+export const check_cancel_order = [
+  check("nomor", "Nomor harus diisi").notEmpty().isString(),
+  check("alasan", "Alasan harus diisi").notEmpty().isString(),
+  async (req, res, next) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) throw new Error(errors.array()[0].msg);
+      next();
+    } catch (e) {
+      return res.status(500).json({ message: e.message, error: true, e });
+    }
+  },
+]
