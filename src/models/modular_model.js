@@ -5,6 +5,7 @@ import cari_barang_view from "./api/cari_barang_model";
 import kategori from "./api/kategori_model";
 import cari_stock_barang from "./api/cari_stock_barang";
 import order from "./api/order_model";
+import sales from "./api/sales_model";
 
 const model = {
   grup,
@@ -14,6 +15,7 @@ const model = {
   barang: cari_barang_view,
   stock_barang: cari_stock_barang,
   pembelian: order,
+  penjualan: sales,
 }
 
 export default model;
