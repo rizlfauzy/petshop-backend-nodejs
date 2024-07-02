@@ -4,9 +4,9 @@ import cari_pembelian from "../../models/api/cari_order";
 import inventory_barang from "../../models/api/inventory_barang_model";
 import generate_kode from "../../utils/generate_kode";
 import month_diff from "../../utils/month_diff";
-import moment from "moment";
+import moment from "moment-timezone";
 import sq from "../../db";
-moment.locale("id");
+moment.tz.setDefault("Asia/Jakarta");
 
 const order_cont = {
   one: async (req, res) => {
@@ -15,7 +15,7 @@ const order_cont = {
       const { nomor } = req.query;
       const data = await order.findOne({ attributes: ["nomor", "tanggal", "keterangan"], where: { nomor } }, { transaction });
       const detail = await cari_pembelian.findAll({ attributes: ["barcode", "nama_barang", "stock", "qty", "harga", "total"], where: { nomor } }, { transaction });
-      data.setDataValue("list_barang", detail)
+      data.setDataValue("list_barang", detail);
       await transaction.commit();
       return res.status(200).json({ error: false, message: "Data berhasil didapatkan !!!", data });
     } catch (e) {
@@ -41,24 +41,19 @@ const order_cont = {
             const stock = await inventory_barang.findOne({ where: { barcode: barang.barcode, periode: periode_stock } }, { transaction });
             if (stock) {
               const data_update_stock = i == 0 ? { qty_masuk: Number(stock.qty_masuk) + Number(barang.qty) } : { qty_awal };
-              await inventory_barang.update(
-                { ...data_update_stock, tglupdate: moment().format("YYYY-MM-DD HH:mm:ss"), pemakai: req.user.myusername.toUpperCase() },
-                { where: { barcode: barang.barcode, periode: periode_stock } }
-              );
+              await inventory_barang.update({ ...data_update_stock, tglupdate: moment().format("YYYY-MM-DD HH:mm:ss"), pemakai: req.user.myusername.toUpperCase() }, { where: { barcode: barang.barcode, periode: periode_stock } });
               const stock_now = await inventory_barang.findOne({ where: { barcode: barang.barcode, periode: periode_stock } }, { transaction });
               qty_awal = Number(stock_now.qty_awal) + Number(stock_now.qty_masuk) - Number(stock_now.qty_keluar);
             } else {
               const data_insert_stock = i == 0 ? { qty_masuk: Number(barang.qty), qty_awal: 0 } : { qty_awal, qty_masuk: 0 };
-              await inventory_barang.create(
-                {
-                  ...data_insert_stock,
-                  periode: periode_stock,
-                  barcode: barang.barcode,
-                  qty_keluar: 0,
-                  pemakai: req.user.myusername.toUpperCase(),
-                  tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss"),
-                }
-              );
+              await inventory_barang.create({
+                ...data_insert_stock,
+                periode: periode_stock,
+                barcode: barang.barcode,
+                qty_keluar: 0,
+                pemakai: req.user.myusername.toUpperCase(),
+                tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss"),
+              });
               const stock_now = await inventory_barang.findOne({ where: { barcode: barang.barcode, periode: periode_stock } }, { transaction });
               qty_awal = Number(stock_now.qty_awal) + Number(stock_now.qty_masuk) - Number(stock_now.qty_keluar);
             }
@@ -118,10 +113,7 @@ const order_cont = {
             const stock = await inventory_barang.findOne({ where: { barcode: barang.barcode, periode: periode_stock } }, { transaction });
             if (stock) {
               const data_update_stock = i == 0 ? { qty_masuk: Number(stock.qty_masuk) - Number(barang.qty) } : { qty_awal };
-              await inventory_barang.update(
-                { ...data_update_stock, tglupdate: moment().format("YYYY-MM-DD HH:mm:ss"), pemakai: req.user.myusername.toUpperCase() },
-                { where: { barcode: barang.barcode, periode: periode_stock } }
-              );
+              await inventory_barang.update({ ...data_update_stock, tglupdate: moment().format("YYYY-MM-DD HH:mm:ss"), pemakai: req.user.myusername.toUpperCase() }, { where: { barcode: barang.barcode, periode: periode_stock } });
               const stock_now = await inventory_barang.findOne({ where: { barcode: barang.barcode, periode: periode_stock } }, { transaction });
               qty_awal = Number(stock_now.qty_awal) + Number(stock_now.qty_masuk) - Number(stock_now.qty_keluar);
             }
@@ -146,24 +138,19 @@ const order_cont = {
             const stock = await inventory_barang.findOne({ where: { barcode: barang.barcode, periode: periode_stock } }, { transaction });
             if (stock) {
               const data_update_stock = i == 0 ? { qty_masuk: Number(stock.qty_masuk) + Number(barang.qty) } : { qty_awal };
-              await inventory_barang.update(
-                { ...data_update_stock, tglupdate: moment().format("YYYY-MM-DD HH:mm:ss"), pemakai: req.user.myusername.toUpperCase() },
-                { where: { barcode: barang.barcode, periode: periode_stock } }
-              );
+              await inventory_barang.update({ ...data_update_stock, tglupdate: moment().format("YYYY-MM-DD HH:mm:ss"), pemakai: req.user.myusername.toUpperCase() }, { where: { barcode: barang.barcode, periode: periode_stock } });
               const stock_now = await inventory_barang.findOne({ where: { barcode: barang.barcode, periode: periode_stock } }, { transaction });
               qty_awal = Number(stock_now.qty_awal) + Number(stock_now.qty_masuk) - Number(stock_now.qty_keluar);
             } else {
               const data_insert_stock = i == 0 ? { qty_masuk: Number(barang.qty), qty_awal: 0 } : { qty_awal, qty_masuk: 0 };
-              await inventory_barang.create(
-                {
-                  ...data_insert_stock,
-                  periode: periode_stock,
-                  barcode: barang.barcode,
-                  qty_keluar: 0,
-                  pemakai: req.user.myusername.toUpperCase(),
-                  tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss"),
-                },
-              );
+              await inventory_barang.create({
+                ...data_insert_stock,
+                periode: periode_stock,
+                barcode: barang.barcode,
+                qty_keluar: 0,
+                pemakai: req.user.myusername.toUpperCase(),
+                tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss"),
+              });
               const stock_now = await inventory_barang.findOne({ where: { barcode: barang.barcode, periode: periode_stock } }, { transaction });
               qty_awal = Number(stock_now.qty_awal) + Number(stock_now.qty_masuk) - Number(stock_now.qty_keluar);
             }
@@ -176,17 +163,15 @@ const order_cont = {
               { where: { barcode: barang.barcode, periode } }
             );
           } else {
-            await inventory_barang.create(
-              {
-                periode,
-                barcode: barang.barcode,
-                qty_awal: 0,
-                qty_masuk: Number(barang.qty),
-                qty_keluar: 0,
-                pemakai: req.user.myusername.toUpperCase(),
-                tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss"),
-              },
-            );
+            await inventory_barang.create({
+              periode,
+              barcode: barang.barcode,
+              qty_awal: 0,
+              qty_masuk: Number(barang.qty),
+              qty_keluar: 0,
+              pemakai: req.user.myusername.toUpperCase(),
+              tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss"),
+            });
           }
         }
       }
@@ -198,7 +183,10 @@ const order_cont = {
         await order_detail.create({ nomor, barcode, qty, harga, total, tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss"), pemakai: req.user.myusername.toUpperCase() }, { transaction });
       }
 
-      await order.update({ tanggal: moment(tanggal).format("YYYY-MM-DD"), keterangan, tglupdate: moment().format("YYYY-MM-DD HH:mm:ss"), pemakai: req.user.myusername.toUpperCase() }, { where: { nomor }, transaction });
+      await order.update(
+        { tanggal: moment(tanggal).tz("Asia/Jakarta").format("YYYY-MM-DD"), keterangan, tglupdate: moment().tz("Asia/Jakarta").format("YYYY-MM-DD HH:mm:ss"), pemakai: req.user.myusername.toUpperCase() },
+        { where: { nomor }, transaction }
+      );
 
       await transaction.commit();
       return res.status(200).json({ message: "Pembelian berhasil diupdate !!!", error: false, data: req.body, list_barang });
@@ -212,7 +200,7 @@ const order_cont = {
     try {
       const { nomor, alasan } = req.body;
       const periode = moment().format("YYYYMM");
-      const header = await order.findOne({ attributes:["nomor", "tanggal"],where: { nomor } }, { transaction });
+      const header = await order.findOne({ attributes: ["nomor", "tanggal"], where: { nomor } }, { transaction });
       const detail = await cari_pembelian.findAll({ attributes: ["barcode", "tanggal", "nama_barang", "stock", "qty", "harga", "total"], where: { nomor } }, { transaction });
 
       const first_date = moment(header.tanggal).startOf("month").format("YYYY-MM-DD");
@@ -225,10 +213,7 @@ const order_cont = {
             const stock = await inventory_barang.findOne({ where: { barcode: barang.barcode, periode: periode_stock } }, { transaction });
             if (stock) {
               const data_update_stock = i == 0 ? { qty_masuk: Number(stock.qty_masuk) - Number(barang.qty) } : { qty_awal };
-              await inventory_barang.update(
-                { ...data_update_stock, tglupdate: moment().format("YYYY-MM-DD HH:mm:ss"), pemakai: req.user.myusername.toUpperCase() },
-                { where: { barcode: barang.barcode, periode: periode_stock } }
-              );
+              await inventory_barang.update({ ...data_update_stock, tglupdate: moment().format("YYYY-MM-DD HH:mm:ss"), pemakai: req.user.myusername.toUpperCase() }, { where: { barcode: barang.barcode, periode: periode_stock } });
               const stock_now = await inventory_barang.findOne({ where: { barcode: barang.barcode, periode: periode_stock } }, { transaction });
               qty_awal = Number(stock_now.qty_awal) + Number(stock_now.qty_masuk) - Number(stock_now.qty_keluar);
             }
@@ -250,9 +235,9 @@ const order_cont = {
       return res.status(200).json({ message: "Pembelian berhasil dibatalkan !!!", error: false });
     } catch (e) {
       await transaction.rollback();
-      return res.status(500).json({ message: e.message, error: true});
+      return res.status(500).json({ message: e.message, error: true });
     }
-  }
+  },
 };
 
 export default order_cont;

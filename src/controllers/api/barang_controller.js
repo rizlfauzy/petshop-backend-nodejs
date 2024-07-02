@@ -29,7 +29,7 @@ const barang_cont = {
     const transaction = await sq.transaction();
     try {
       const { barcode } = req.query;
-      const data = await cari_stock_barang.findOne({ attributes:["barcode", "nama_barang", "stock", "harga_modal"],where: { barcode: barcode.toUpperCase(), periode: moment().format("YYYYMM") }, transaction });
+      const data = await cari_stock_barang.findOne({ attributes:["barcode", "nama_barang", "disc", "stock", "harga_modal", "harga_jual"],where: { barcode: barcode.toUpperCase(), periode: moment().format("YYYYMM") }, transaction });
       await transaction.commit();
       return res.status(200).json({ data, error: false, message: "Data berhasil diambil" });
     } catch (e) {
