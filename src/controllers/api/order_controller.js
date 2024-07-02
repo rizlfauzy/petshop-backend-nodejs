@@ -63,7 +63,7 @@ const order_cont = {
           if (stock) {
             await inventory_barang.update(
               { qty_masuk: Number(stock.qty_masuk) + Number(barang.qty), tglupdate: moment().format("YYYY-MM-DD HH:mm:ss"), pemakai: req.user.myusername.toUpperCase() },
-              { where: { barcode: barang.barcode, periode }, transaction }
+              { where: { barcode: barang.barcode, periode } }
             );
           } else {
             await inventory_barang.create(
@@ -75,8 +75,7 @@ const order_cont = {
                 qty_keluar: 0,
                 pemakai: req.user.myusername.toUpperCase(),
                 tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss"),
-              },
-              { transaction }
+              }
             );
           }
         }
