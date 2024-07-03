@@ -19,6 +19,7 @@ const sales_cont = {
       await transaction.commit();
       return res.status(200).json({ data, message: "Data berhasil didapatkan !!!", error: false });
     } catch (e) {
+      await transaction.rollback();
       return res.status(500).json({ message: e.message, error: true });
     }
   },
@@ -88,7 +89,7 @@ const sales_cont = {
             nomor,
             barcode: barang.barcode,
             qty: barang.qty,
-            harga: barang.harga_jual,
+            harga: barang.harga,
             disc: barang.disc,
             nilai_disc: barang.nilai_disc,
             total: barang.total_harga,
@@ -175,7 +176,7 @@ const sales_cont = {
             nomor,
             barcode: barang.barcode,
             qty: barang.qty,
-            harga: barang.harga_jual,
+            harga: barang.harga,
             disc: barang.disc,
             nilai_disc: barang.nilai_disc,
             total: barang.total_harga,
