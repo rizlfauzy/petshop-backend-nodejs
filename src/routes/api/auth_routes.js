@@ -12,6 +12,7 @@ import otority_cont from "../../controllers/api/otority_controller";
 import order_cont from "../../controllers/api/order_controller";
 import sales_cont from "../../controllers/api/sales_controller";
 import barang_rusak_cont from "../../controllers/api/barang_rusak_controller";
+import repack_barang_cont from "../../controllers/api/repack_barang_controller";
 import multer from "multer";
 import { is_login } from "../../middlewares/auth";
 import { check_login, check_password, check_info, check_page, check_save_grup, check_update_grup, check_register_user, check_update_user, check_save_satuan, check_update_satuan, check_save_kategori, check_update_kategori, check_save_barang, check_update_barang, check_save_otority, check_save_order, check_update_order, check_cancel_order, check_save_sales, check_update_sales, check_cancel_sales, check_save_barang_rusak, check_update_barang_rusak, check_cancel_barang_rusak } from "../../utils/validator";
@@ -61,4 +62,5 @@ export default Router()
   .post("/barang-rusak", is_login, check_save_barang_rusak, barang_rusak_cont.save)
   .put("/barang-rusak", is_login, check_update_barang_rusak, barang_rusak_cont.update)
   .delete("/barang-rusak", is_login, check_cancel_barang_rusak, barang_rusak_cont.cancel)
+  .get("/repack-barang", is_login, repack_barang_cont.one)
   .post("/logout", is_login, auth_cont.logout);
