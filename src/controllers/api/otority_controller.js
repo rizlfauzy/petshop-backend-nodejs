@@ -10,11 +10,11 @@ const otority_cont = {
   all_menu: async (req, res) => {
     try {
       const data = await menu.findAll({
-        attributes:['grupmenu', 'nomenu', 'namamenu'],
+        attributes: ["grupmenu", "nomenu", "namamenu"],
         where: {
           aktif: true,
           nomenu: {
-            [Op.ne]: "M008",
+            [Op.ne]: req.user.mygrup == "ITS" ? "" : "M008",
           },
         },
         order: [
@@ -27,6 +27,7 @@ const otority_cont = {
         item.setDataValue("add", false);
         item.setDataValue("update", false);
         item.setDataValue("cancel", false);
+        item.setDataValue("backdate", false);
       });
       return res.status(200).json({ data, error: false, message: "Data berhasil diambil" });
     } catch (error) {
@@ -35,7 +36,7 @@ const otority_cont = {
   },
   menu_role: async (req, res) => {
     try {
-      const data = await sq.query(`SELECT nomenu, namamenu, grupmenu, add, update, cancel from cari_oto_menu where grup = :grup`, {replacements: {grup: req.query.grup.toUpperCase()}, type: Sequelize.QueryTypes.SELECT});
+      const data = await sq.query(`SELECT nomenu, namamenu, grupmenu, add, update, cancel, backdate from cari_oto_menu where grup = :grup`, {replacements: {grup: req.query.grup.toUpperCase()}, type: Sequelize.QueryTypes.SELECT});
       return res.status(200).json({ data, error: false, message: "Data berhasil diambil" });
     } catch (error) {
       res.status(500).json({ message: error.message, error: true });
@@ -48,7 +49,7 @@ const otority_cont = {
         where: {
           aktif: true,
           nomenu: {
-            [Op.ne]: "M008",
+            [Op.ne]: req.user.mygrup == "ITS" ? "" : "M008",
           },
           [Op.or]: {
             namamenu: { [Op.iLike]: `%${req.query.q}%` },
@@ -67,6 +68,7 @@ const otority_cont = {
         item.setDataValue("add", false);
         item.setDataValue("update", false);
         item.setDataValue("cancel", false);
+        item.setDataValue("backdate", false);
       });
       return res.status(200).json({ data, error: false, message: "Data berhasil diambil" });
     } catch (error) {
@@ -79,8 +81,8 @@ const otority_cont = {
       const menus = JSON.parse(req.body.menus);
       await oto_menu.destroy({ where: { grup: kode_grup } });
       menus.forEach(async (item) => {
-        const { nomenu, add, update, cancel } = item;
-        await oto_menu.create({ grup:kode_grup, nomenu, add, update, cancel, open: true });
+        const { nomenu, add, update, cancel, backdate } = item;
+        await oto_menu.create({ grup:kode_grup, nomenu, add, update, cancel, backdate, open: true });
       });
       return res.status(200).json({ error: false, message: "Data berhasil disimpan" });
     } catch (error) {
