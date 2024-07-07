@@ -7,6 +7,7 @@ import cari_stock_barang from "./api/cari_stock_barang";
 import order from "./api/order_model";
 import sales from "./api/sales_model";
 import barang_rusak from "./api/barang_rusak_model";
+import repack_barang from "./api/repack_barang_model";
 
 const model = {
   grup,
@@ -17,7 +18,8 @@ const model = {
   stock_barang: cari_stock_barang,
   pembelian: order,
   penjualan: sales,
-  barang_rusak
+  barang_rusak,
+  repack_barang
 }
 
 export default model;

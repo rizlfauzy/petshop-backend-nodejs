@@ -188,7 +188,7 @@ const order_cont = {
       );
 
       await transaction.commit();
-      return res.status(200).json({ message: "Pembelian berhasil diupdate !!!", error: false, data: req.body, list_barang });
+      return res.status(200).json({ message: "Pembelian berhasil diupdate !!!", error: false });
     } catch (e) {
       await transaction.rollback();
       return res.status(500).json({ message: e.message, error: true });

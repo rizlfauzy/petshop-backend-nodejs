@@ -13,6 +13,7 @@ import month_diff from "./month_diff";
 import moment from "moment";
 import sales from "../models/api/sales_model";
 import cari_barang_rusak from "../models/api/cari_barang_rusak";
+import cari_repack_barang from "../models/api/cari_repack_barang";
 
 export const check_login = [
   check("username", "Username harus diisi").notEmpty().isString(),
@@ -400,7 +401,7 @@ export const check_update_order = [
               const stock_now = Number(stock.stock);
               const stock_real_now = Number(Number(stock_real.awal) + Number(stock_real.masuk) - Number(stock_real.keluar));
               const qty_list_barang = list_barang.some((item) => item.barcode === barang.barcode) ? list_barang.find((item) => item.barcode === barang.barcode).qty : 0;
-              if (stock_real_now + Number(qty_list_barang) < Number(barang.qty)) throw new Error(`Stock ${barang.nama_barang} sudah dipakai di periode ${periode_stock} !!!`);
+              if (stock_real_now + Number(barang.qty) < Number(qty_list_barang)) throw new Error(`Stock ${barang.nama_barang} sudah dipakai di periode ${periode_stock} !!!`);
               if (stock_real_now != stock_now) throw new Error(`Stock ${barang.nama_barang} tidak sama di periode ${periode_stock} !!!`);
             }
           }
@@ -411,7 +412,7 @@ export const check_update_order = [
             const stock_now = Number(stock.stock);
             const stock_real_now = Number(Number(stock_real.awal) + Number(stock_real.masuk) - Number(stock_real.keluar));
             const qty_list_barang = list_barang.some((item) => item.barcode === barang.barcode) ? list_barang.find((item) => item.barcode === barang.barcode).qty : 0;
-            if (stock_real_now + Number(qty_list_barang) < Number(barang.qty)) throw new Error(`Stock ${barang.nama_barang} sudah dipakai di periode ${periode} !!!`);
+            if (stock_real_now + Number(barang.qty) < Number(qty_list_barang)) throw new Error(`Stock ${barang.nama_barang} sudah dipakai di periode ${periode} !!!`);
             if (stock_real_now != stock_now) throw new Error(`Stock ${barang.nama_barang} tidak sama di periode ${periode} !!!`);
           }
         }
@@ -430,7 +431,7 @@ export const check_cancel_order = [
   check("tanggal", "Tanggal harus diisi").notEmpty().isString(),
   async (req, res, next) => {
     try {
-      const { nomor} = req.body;
+      const { nomor } = req.body;
       const errors = validationResult(req);
       const periode = moment().format("YYYYMM");
       const detail = await cari_pembelian.findAll({ attributes: ["barcode", "nama_barang", "tanggal", "qty", "stock"], where: { nomor } });
@@ -533,7 +534,6 @@ export const check_update_sales = [
             if (stock && stock_real) {
               const stock_now = Number(stock.stock);
               const stock_real_now = Number(Number(stock_real.awal) + Number(stock_real.masuk) - Number(stock_real.keluar));
-              if (Number(barang.qty) > stock_real_now) throw new Error(`Stock ${barang.nama_barang} tidak cukup di periode ${periode_stock} !!!`);
               if (stock_real_now != stock_now) throw new Error(`Stock ${barang.nama_barang} tidak sama di periode ${periode_stock} !!!`);
             } else {
               throw new Error(`Stock ${barang.nama_barang} tidak ditemukan di periode ${periode_stock} !!!`);
@@ -545,7 +545,6 @@ export const check_update_sales = [
           if (stock && stock_real) {
             const stock_now = Number(stock.stock);
             const stock_real_now = Number(Number(stock_real.awal) + Number(stock_real.masuk) - Number(stock_real.keluar));
-            if (Number(barang.qty) > stock_real_now) throw new Error(`Stock ${barang.nama_barang} tidak cukup di periode ${periode} !!!`);
             if (stock_real_now != stock_now) throw new Error(`Stock ${barang.nama_barang} tidak sama di periode ${periode} !!!`);
           } else {
             throw new Error(`Stock ${barang.nama_barang} tidak ditemukan di periode ${periode} !!!`);
@@ -564,9 +563,8 @@ export const check_update_sales = [
             if (stock && stock_real) {
               const stock_now = Number(stock.stock);
               const stock_real_now = Number(Number(stock_real.awal) + Number(stock_real.masuk) - Number(stock_real.keluar));
-              const qty_list_barang = list_barang.some((item) => item.barcode === barang.
-              barcode) ? list_barang.find((item) => item.barcode === barang.barcode).qty : 0;
-              if (stock_real_now + Number(qty_list_barang) < Number(barang.qty)) throw new Error(`Stock ${barang.nama_barang} tidak cukup di periode ${periode_stock} !!!`);
+              const qty_list_barang = list_barang.some((item) => item.barcode === barang.barcode) ? list_barang.find((item) => item.barcode === barang.barcode).qty : 0;
+              if (stock_real_now + Number(barang.qty) < Number(qty_list_barang)) throw new Error(`Stock ${barang.nama_barang} tidak cukup di periode ${periode_stock} !!!`);
               if (stock_real_now != stock_now) throw new Error(`Stock ${barang.nama_barang} tidak sama di periode ${periode_stock} !!!`);
             } else {
               throw new Error(`Stock ${barang.nama_barang} tidak ditemukan di periode ${periode_stock} !!!`);
@@ -579,7 +577,7 @@ export const check_update_sales = [
             const stock_now = Number(stock.stock);
             const stock_real_now = Number(Number(stock_real.awal) + Number(stock_real.masuk) - Number(stock_real.keluar));
             const qty_list_barang = list_barang.some((item) => item.barcode === barang.barcode) ? list_barang.find((item) => item.barcode === barang.barcode).qty : 0;
-            if (stock_real_now + Number(qty_list_barang) < Number(barang.qty)) throw new Error(`Stock ${barang.nama_barang} tidak cukup di periode ${periode} !!!`);
+            if (stock_real_now + Number(barang.qty) < Number(qty_list_barang)) throw new Error(`Stock ${barang.nama_barang} tidak cukup di periode ${periode} !!!`);
             if (stock_real_now != stock_now) throw new Error(`Stock ${barang.nama_barang} tidak sama di periode ${periode} !!!`);
           } else {
             throw new Error(`Stock ${barang.nama_barang} tidak ditemukan di periode ${periode} !!!`);
@@ -591,8 +589,8 @@ export const check_update_sales = [
     } catch (e) {
       return res.status(500).json({ message: e.message, error: true });
     }
-  }
-]
+  },
+];
 
 export const check_cancel_sales = [
   check("nomor", "Nomor harus diisi").notEmpty().isString(),
@@ -600,7 +598,7 @@ export const check_cancel_sales = [
   check("tanggal", "Tanggal harus diisi").notEmpty().isString(),
   async (req, res, next) => {
     try {
-      const {nomor} = req.body;
+      const { nomor } = req.body;
       const errors = validationResult(req);
       const periode = moment().format("YYYYMM");
       const detail = await cari_sales.findAll({ attributes: ["barcode", "nama_barang", "tanggal", "qty", "stock"], where: { nomor } });
@@ -637,8 +635,8 @@ export const check_cancel_sales = [
     } catch (e) {
       return res.status(500).json({ message: e.message, error: true, e });
     }
-  }
-]
+  },
+];
 
 export const check_save_barang_rusak = [
   check("tanggal", "Tanggal harus diisi").notEmpty().isString(),
@@ -694,9 +692,10 @@ export const check_update_barang_rusak = [
       if (list_barang.length === 0) throw new Error("Harus input barang !!!");
       const errors = validationResult(req);
       const periode = moment().format("YYYYMM");
+
+      const first_date = moment(tanggal).startOf("month").format("YYYY-MM-DD");
+      const selisih_bulan = month_diff(moment(first_date).format("YYYYMM"), periode);
       for (const barang of list_barang) {
-        const first_date = moment(tanggal).startOf("month").format("YYYY-MM-DD");
-        const selisih_bulan = month_diff(moment(first_date).format("YYYYMM"), periode);
         if (selisih_bulan > 0) {
           for (let i = 0; i <= selisih_bulan; i++) {
             const periode_stock = moment(first_date).add(i, "months").format("YYYYMM");
@@ -705,7 +704,6 @@ export const check_update_barang_rusak = [
             if (stock && stock_real) {
               const stock_now = Number(stock.stock);
               const stock_real_now = Number(Number(stock_real.awal) + Number(stock_real.masuk) - Number(stock_real.keluar));
-              if (Number(barang.qty) > stock_real_now) throw new Error(`Stock ${barang.nama_barang} tidak cukup di periode ${periode_stock} !!!`);
               if (stock_real_now != stock_now) throw new Error(`Stock ${barang.nama_barang} tidak sama di periode ${periode_stock} !!!`);
             } else {
               throw new Error(`Stock ${barang.nama_barang} tidak ditemukan di periode ${periode_stock} !!!`);
@@ -717,13 +715,13 @@ export const check_update_barang_rusak = [
           if (stock && stock_real) {
             const stock_now = Number(stock.stock);
             const stock_real_now = Number(Number(stock_real.awal) + Number(stock_real.masuk) - Number(stock_real.keluar));
-            if (Number(barang.qty) > stock_real_now) throw new Error(`Stock ${barang.nama_barang} tidak cukup di periode ${periode} !!!`);
             if (stock_real_now != stock_now) throw new Error(`Stock ${barang.nama_barang} tidak sama di periode ${periode} !!!`);
           } else {
             throw new Error(`Stock ${barang.nama_barang} tidak ditemukan di periode ${periode} !!!`);
           }
         }
       }
+
       const detail = await cari_barang_rusak.findAll({ attributes: ["barcode", "nama_barang", "tanggal", "qty", "stock"], where: { nomor } });
       for (const barang of detail) {
         const first_date = moment(barang.tanggal).startOf("month").format("YYYY-MM-DD");
@@ -737,7 +735,7 @@ export const check_update_barang_rusak = [
               const stock_now = Number(stock.stock);
               const stock_real_now = Number(Number(stock_real.awal) + Number(stock_real.masuk) - Number(stock_real.keluar));
               const qty_list_barang = list_barang.some((item) => item.barcode === barang.barcode) ? list_barang.find((item) => item.barcode === barang.barcode).qty : 0;
-              if (stock_real_now + Number(qty_list_barang) < Number(barang.qty)) throw new Error(`Stock ${barang.nama_barang} tidak cukup di periode ${periode_stock} !!!`);
+              if (stock_real_now + Number(barang.qty) < Number(qty_list_barang)) throw new Error(`Stock ${barang.nama_barang} tidak cukup di periode ${periode_stock} !!!`);
               if (stock_real_now != stock_now) throw new Error(`Stock ${barang.nama_barang} tidak sama di periode ${periode_stock} !!!`);
             } else {
               throw new Error(`Stock ${barang.nama_barang} tidak ditemukan di periode ${periode_stock} !!!`);
@@ -750,13 +748,14 @@ export const check_update_barang_rusak = [
             const stock_now = Number(stock.stock);
             const stock_real_now = Number(Number(stock_real.awal) + Number(stock_real.masuk) - Number(stock_real.keluar));
             const qty_list_barang = list_barang.some((item) => item.barcode === barang.barcode) ? list_barang.find((item) => item.barcode === barang.barcode).qty : 0;
-            if (stock_real_now + Number(qty_list_barang) < Number(barang.qty)) throw new Error(`Stock ${barang.nama_barang} tidak cukup di periode ${periode} !!!`);
+            if (stock_real_now + Number(barang.qty) < Number(qty_list_barang)) throw new Error(`Stock ${barang.nama_barang} tidak cukup di periode ${periode} !!!`);
             if (stock_real_now != stock_now) throw new Error(`Stock ${barang.nama_barang} tidak sama di periode ${periode} !!!`);
           } else {
             throw new Error(`Stock ${barang.nama_barang} tidak ditemukan di periode ${periode} !!!`);
           }
         }
       }
+
       if (!errors.isEmpty()) throw new Error(errors.array()[0].msg);
       next();
     } catch (e) {
@@ -806,7 +805,255 @@ export const check_cancel_barang_rusak = [
       if (!errors.isEmpty()) throw new Error(errors.array()[0].msg);
       next();
     } catch (e) {
-      return res.status(500).json({ message: e.message, error: true, e });
+      return res.status(500).json({ message: e.message, error: true });
     }
   },
 ];
+
+export const check_save_repack_barang = [
+  check("tanggal", "Tanggal harus diisi").notEmpty().isString(),
+  async (req, res, next) => {
+    try {
+      const { tanggal } = req.body;
+      const list_barang_proses = JSON.parse(req.body.list_barang_proses);
+      const list_barang_hasil = JSON.parse(req.body.list_barang_hasil);
+      if (list_barang_proses.length === 0) throw new Error("Harus input barang proses !!!");
+      if (list_barang_hasil.length === 0) throw new Error("Harus input barang hasil !!!");
+      if (list_barang_proses.some(item=>item.barcode == list_barang_hasil.find(item=>item.barcode).barcode || '')) throw new Error("Barang proses dan hasil tidak boleh sama !!!");
+      const errors = validationResult(req);
+      const periode = moment().format("YYYYMM");
+      const first_date = moment(tanggal).startOf("month").format("YYYY-MM-DD");
+      const selisih_bulan = month_diff(moment(first_date).format("YYYYMM"), periode);
+
+      for (const barang of list_barang_proses) {
+        if (selisih_bulan > 0) {
+          for (let i = 0; i <= selisih_bulan; i++) {
+            const periode_stock = moment(first_date).add(i, "months").format("YYYYMM");
+            const stock = await cari_stock_barang.findOne({ attributes: ["periode", "barcode", "stock"], where: { barcode: barang.barcode, periode: periode_stock } });
+            const stock_real = await cari_stock_real_barang.findOne({ attributes: ["periode", "barcode", "awal", "masuk", "keluar"], where: { barcode: barang.barcode, periode: periode_stock } });
+            if (stock && stock_real) {
+              const stock_now = Number(stock.stock);
+              const stock_real_now = Number(Number(stock_real.awal) + Number(stock_real.masuk) - Number(stock_real.keluar));
+              if (Number(barang.qty) > stock_real_now) throw new Error(`Stock ${barang.nama_barang} tidak cukup di periode ${periode_stock} !!!`);
+              if (stock_real_now != stock_now) throw new Error(`Stock ${barang.nama_barang} tidak sama di periode ${periode_stock} !!!`);
+            } else throw new Error(`Stock ${barang.nama_barang} tidak ditemukan di periode ${periode_stock} !!!`);
+          }
+        } else {
+          const stock = await cari_stock_barang.findOne({ attributes: ["periode", "barcode", "stock"], where: { barcode: barang.barcode, periode } });
+          const stock_real = await cari_stock_real_barang.findOne({ attributes: ["periode", "barcode", "awal", "masuk", "keluar"], where: { barcode: barang.barcode, periode } });
+          if (stock && stock_real) {
+            const stock_now = Number(stock.stock);
+            const stock_real_now = Number(Number(stock_real.awal) + Number(stock_real.masuk) - Number(stock_real.keluar));
+            if (Number(barang.qty) > stock_real_now) throw new Error(`Stock ${barang.nama_barang} tidak cukup di periode ${periode} !!!`);
+            if (stock_real_now != stock_now) throw new Error(`Stock ${barang.nama_barang} tidak sama di periode ${periode} !!!`);
+          } else throw new Error(`Stock ${barang.nama_barang} tidak ditemukan di periode ${periode} !!!`);
+        }
+      }
+
+      for (const barang of list_barang_hasil) {
+        if (selisih_bulan > 0) {
+          for (let i = 0; i <= selisih_bulan; i++) {
+            const periode_stock = moment(first_date).add(i, "months").format("YYYYMM");
+            const stock = await cari_stock_barang.findOne({ attributes: ["periode", "barcode", "stock"], where: { barcode: barang.barcode, periode: periode_stock } });
+            const stock_real = await cari_stock_real_barang.findOne({ attributes: ["periode", "barcode", "awal", "masuk", "keluar"], where: { barcode: barang.barcode, periode: periode_stock } });
+            if (stock && stock_real) {
+              const stock_now = Number(stock.stock);
+              const stock_real_now = Number(Number(stock_real.awal) + Number(stock_real.masuk) - Number(stock_real.keluar));
+              if (stock_real_now != stock_now) throw new Error(`Stock ${barang.nama_barang} tidak sama di periode ${periode_stock} !!!`);
+            } else throw new Error(`Stock ${barang.nama_barang} tidak ditemukan di periode ${periode_stock} !!!`);
+          }
+        } else {
+          const stock = await cari_stock_barang.findOne({ attributes: ["periode", "barcode", "stock"], where: { barcode: barang.barcode, periode } });
+          const stock_real = await cari_stock_real_barang.findOne({ attributes: ["periode", "barcode", "awal", "masuk", "keluar"], where: { barcode: barang.barcode, periode } });
+          if (stock && stock_real) {
+            const stock_now = Number(stock.stock);
+            const stock_real_now = Number(Number(stock_real.awal) + Number(stock_real.masuk) - Number(stock_real.keluar));
+            if (stock_real_now != stock_now) throw new Error(`Stock ${barang.nama_barang} tidak sama di periode ${periode} !!!`);
+          } else throw new Error(`Stock ${barang.nama_barang} tidak ditemukan di periode ${periode} !!!`);
+        }
+      }
+
+      if (!errors.isEmpty()) throw new Error(errors.array()[0].msg);
+      next();
+    } catch (e) {
+      return res.status(500).json({ message: e.message, error: true });
+    }
+  },
+];
+
+export const check_update_repack_barang = [
+  check("nomor", "Nomor harus diisi").notEmpty().isString(),
+  check("tanggal", "Tanggal harus diisi").notEmpty().isString(),
+  async (req, res, next) => {
+    try {
+      const errors = validationResult(req);
+      const { tanggal, nomor } = req.body;
+      const list_barang_proses = JSON.parse(req.body.list_barang_proses);
+      const list_barang_hasil = JSON.parse(req.body.list_barang_hasil);
+      if (list_barang_proses.length === 0) throw new Error("Harus input barang proses !!!");
+      if (list_barang_hasil.length === 0) throw new Error("Harus input barang hasil !!!");
+      if (list_barang_proses.some(item => item.barcode == list_barang_hasil.find(item => item.barcode).barcode || '')) throw new Error("Barang proses dan hasil tidak boleh sama !!!");
+      const periode = moment().format("YYYYMM");
+
+      const first_date = moment(tanggal).startOf("month").format("YYYY-MM-DD");
+      const selisih_bulan = month_diff(moment(first_date).format("YYYYMM"), periode);
+      for (const barang of list_barang_proses) {
+        if (selisih_bulan > 0) {
+          for (let i = 0; i <= selisih_bulan; i++) {
+            const periode_stock = moment(first_date).add(i, "months").format("YYYYMM");
+            const stock = await cari_stock_barang.findOne({ attributes: ["periode", "barcode", "stock"], where: { barcode: barang.barcode, periode: periode_stock } });
+            const stock_real = await cari_stock_real_barang.findOne({ attributes: ["periode", "barcode", "awal", "masuk", "keluar"], where: { barcode: barang.barcode, periode: periode_stock } });
+            if (stock && stock_real) {
+              const stock_now = Number(stock.stock);
+              const stock_real_now = Number(Number(stock_real.awal) + Number(stock_real.masuk) - Number(stock_real.keluar));
+              if (stock_real_now != stock_now) throw new Error(`Stock ${barang.nama_barang} tidak sama di periode ${periode_stock} !!!!`);
+            } else throw new Error(`Stock ${barang.nama_barang} tidak ditemukan di periode ${periode_stock} !!!!`);
+          }
+        } else {
+          const stock = await cari_stock_barang.findOne({ attributes: ["periode", "barcode", "stock"], where: { barcode: barang.barcode, periode } });
+          const stock_real = await cari_stock_real_barang.findOne({ attributes: ["periode", "barcode", "awal", "masuk", "keluar"], where: { barcode: barang.barcode, periode } });
+          if (stock && stock_real) {
+            const stock_now = Number(stock.stock);
+            const stock_real_now = Number(Number(stock_real.awal) + Number(stock_real.masuk) - Number(stock_real.keluar));
+            if (stock_real_now != stock_now) throw new Error(`Stock ${barang.nama_barang} tidak sama di periode ${periode} !!!`);
+          } else throw new Error(`Stock ${barang.nama_barang} tidak ditemukan di periode ${periode} !!!!`);
+        }
+      }
+
+      for (const barang of list_barang_hasil) {
+        if (selisih_bulan > 0) {
+          for (let i = 0; i <= selisih_bulan; i++) {
+            const periode_stock = moment(first_date).add(i, "months").format("YYYYMM");
+            const stock = await cari_stock_barang.findOne({ attributes: ["periode", "barcode", "stock"], where: { barcode: barang.barcode, periode: periode_stock } });
+            const stock_real = await cari_stock_real_barang.findOne({ attributes: ["periode", "barcode", "awal", "masuk", "keluar"], where: { barcode: barang.barcode, periode: periode_stock } });
+            if (stock && stock_real) {
+              const stock_now = Number(stock.stock);
+              const stock_real_now = Number(Number(stock_real.awal) + Number(stock_real.masuk) - Number(stock_real.keluar));
+              if (stock_real_now != stock_now) throw new Error(`Stock ${barang.nama_barang} tidak sama di periode ${periode_stock} !!!!`);
+            } else throw new Error(`Stock ${barang.nama_barang} tidak ditemukan di periode ${periode_stock} !!!!`);
+          }
+        } else {
+          const stock = await cari_stock_barang.findOne({ attributes: ["periode", "barcode", "stock"], where: { barcode: barang.barcode, periode } });
+          const stock_real = await cari_stock_real_barang.findOne({ attributes: ["periode", "barcode", "awal", "masuk", "keluar"], where: { barcode: barang.barcode, periode } });
+          if (stock && stock_real) {
+            const stock_now = Number(stock.stock);
+            const stock_real_now = Number(Number(stock_real.awal) + Number(stock_real.masuk) - Number(stock_real.keluar));
+            if (stock_real_now != stock_now) throw new Error(`Stock ${barang.nama_barang} tidak sama di periode ${periode} !!!!`);
+          } else throw new Error(`Stock ${barang.nama_barang} tidak ditemukan di periode ${periode} !!!!`);
+        }
+      }
+
+      const detail_proses = await cari_repack_barang.findAll({ attributes: ["barcode", "nama_barang", "tanggal", "qty", "stock"], where: { nomor, jenis: "proses" } });
+      for (const barang of detail_proses) {
+        const first_date = moment(barang.tanggal).startOf("month").format("YYYY-MM-DD");
+        const selisih_bulan = month_diff(moment(first_date).format("YYYYMM"), periode);
+        if (selisih_bulan > 0) {
+          for (let i = 0; i <= selisih_bulan; i++) {
+            const periode_stock = moment(first_date).add(i, "months").format("YYYYMM");
+            const stock = await cari_stock_barang.findOne({ attributes: ["periode", "barcode", "stock"], where: { barcode: barang.barcode, periode: periode_stock } });
+            const stock_real = await cari_stock_real_barang.findOne({ attributes: ["periode", "barcode", "awal", "masuk", "keluar"], where: { barcode: barang.barcode, periode: periode_stock } });
+            if (stock && stock_real) {
+              const stock_now = Number(stock.stock);
+              const stock_real_now = Number(Number(stock_real.awal) + Number(stock_real.masuk) - Number(stock_real.keluar));
+              const qty_list_barang = list_barang_proses.some((item) => item.barcode === barang.barcode) ? list_barang_proses.find((item) => item.barcode === barang.barcode).qty : 0;
+              console.log({ stock_real_now, qty_list_barang, qty: stock_real_now + Number(qty_list_barang) });
+              if (stock_real_now + Number(barang.qty) < Number(qty_list_barang)) throw new Error(`Stock ${barang.nama_barang} tidak cukup di periode ${periode_stock} !!!!`);
+              if (stock_real_now != stock_now) throw new Error(`Stock ${barang.nama_barang} tidak sama di periode ${periode_stock} !!!`);
+            } else throw new Error(`Stock ${barang.nama_barang} tidak ditemukan di periode ${periode_stock} !!!`);
+          }
+        } else {
+          const stock = await cari_stock_barang.findOne({ attributes: ["periode", "barcode", "stock"], where: { barcode: barang.barcode, periode } });
+          const stock_real = await cari_stock_real_barang.findOne({ attributes: ["periode", "barcode", "awal", "masuk", "keluar"], where: { barcode: barang.barcode, periode } });
+          if (stock && stock_real) {
+            const stock_now = Number(stock.stock);
+            const stock_real_now = Number(Number(stock_real.awal) + Number(stock_real.masuk) - Number(stock_real.keluar));
+            const qty_list_barang = list_barang_proses.some((item) => item.barcode === barang.barcode) ? list_barang_proses.find((item) => item.barcode === barang.barcode).qty : 0;
+            if (stock_real_now + Number(barang.qty) < Number(qty_list_barang)) throw new Error(`Stock ${barang.nama_barang} tidak cukup di periode ${periode} !!!`);
+            if (stock_real_now != stock_now) throw new Error(`Stock ${barang.nama_barang} tidak sama di periode ${periode} !!!`);
+          } else throw new Error(`Stock ${barang.nama_barang} tidak ditemukan di periode ${periode} !!!`);
+        }
+      }
+
+      const detail_hasil = await cari_repack_barang.findAll({ attributes: ["barcode", "nama_barang", "tanggal", "qty", "stock"], where: { nomor, jenis: "hasil" } });
+      for (const barang of detail_hasil) {
+        const first_date = moment(barang.tanggal).startOf("month").format("YYYY-MM-DD");
+        const selisih_bulan = month_diff(moment(first_date).format("YYYYMM"), periode);
+        if (selisih_bulan > 0) {
+          for (let i = 0; i <= selisih_bulan; i++) {
+            const periode_stock = moment(first_date).add(i, "months").format("YYYYMM");
+            const stock = await cari_stock_barang.findOne({ attributes: ["periode", "barcode", "stock"], where: { barcode: barang.barcode, periode: periode_stock } });
+            const stock_real = await cari_stock_real_barang.findOne({ attributes: ["periode", "barcode", "awal", "masuk", "keluar"], where: { barcode: barang.barcode, periode: periode_stock } });
+            if (stock && stock_real) {
+              const stock_now = Number(stock.stock);
+              const stock_real_now = Number(Number(stock_real.awal) + Number(stock_real.masuk) - Number(stock_real.keluar));
+              const qty_list_barang = list_barang_hasil.some((item) => item.barcode === barang.barcode) ? list_barang_hasil.find((item) => item.barcode === barang.barcode).qty : 0;
+              if (stock_real_now + Number(barang.qty) < Number(qty_list_barang)) throw new Error(`Stock ${barang.nama_barang} tidak cukup di periode ${periode_stock} !!!`);
+              if (stock_real_now != stock_now) throw new Error(`Stock ${barang.nama_barang} tidak sama di periode ${periode_stock} !!!`);
+            } else throw new Error(`Stock ${barang.nama_barang} tidak ditemukan di periode ${periode_stock} !!!`);
+          }
+        } else {
+          const stock = await cari_stock_barang.findOne({ attributes: ["periode", "barcode", "stock"], where: { barcode: barang.barcode, periode } });
+          const stock_real = await cari_stock_real_barang.findOne({ attributes: ["periode", "barcode", "awal", "masuk", "keluar"], where: { barcode: barang.barcode, periode } });
+          if (stock && stock_real) {
+            const stock_now = Number(stock.stock);
+            const stock_real_now = Number(Number(stock_real.awal) + Number(stock_real.masuk) - Number(stock_real.keluar));
+            const qty_list_barang = list_barang_hasil.some((item) => item.barcode === barang.barcode) ? list_barang_hasil.find((item) => item.barcode === barang.barcode).qty : 0;
+            if (stock_real_now + Number(barang.qty) < Number(qty_list_barang)) throw new Error(`Stock ${barang.nama_barang} tidak cukup di periode ${periode} !!!`);
+            if (stock_real_now != stock_now) throw new Error(`Stock ${barang.nama_barang} tidak sama di periode ${periode} !!!`);
+          } else throw new Error(`Stock ${barang.nama_barang} tidak ditemukan di periode ${periode} !!!`);
+        }
+      }
+
+      if (!errors.isEmpty()) throw new Error(errors.array()[0].msg);
+      next();
+    } catch (e) {
+      return res.status(500).json({ message: e.message, error: true });
+    }
+  }
+]
+
+export const check_cancel_repack_barang = [
+  check("nomor", "Nomor harus diisi").notEmpty().isString(),
+  check("alasan", "Alasan harus diisi").notEmpty().isString(),
+  check("tanggal", "Tanggal harus diisi").notEmpty().isString(),
+  async (req, res, next) => {
+    try {
+      const { nomor } = req.body;
+      const errors = validationResult(req);
+      const periode = moment().format("YYYYMM");
+      const detail = await cari_repack_barang.findAll({ attributes: ["barcode", "nama_barang", "tanggal", "qty", "stock"], where: { nomor } });
+      for (const barang of detail) {
+        const first_date = moment(barang.tanggal).startOf("month").format("YYYY-MM-DD");
+        const selisih_bulan = month_diff(moment(first_date).format("YYYYMM"), periode);
+        if (selisih_bulan > 0) {
+          for (let i = 0; i <= selisih_bulan; i++) {
+            const periode_stock = moment(first_date).add(i, "months").format("YYYYMM");
+            const stock = await cari_stock_barang.findOne({ attributes: ["periode", "barcode", "stock"], where: { barcode: barang.barcode, periode: periode_stock } });
+            const stock_real = await cari_stock_real_barang.findOne({ attributes: ["periode", "barcode", "awal", "masuk", "keluar"], where: { barcode: barang.barcode, periode: periode_stock } });
+            if (stock && stock_real) {
+              const stock_now = Number(stock.stock);
+              const stock_real_now = Number(Number(stock_real.awal) + Number(stock_real.masuk) - Number(stock_real.keluar));
+              if (stock_real_now != stock_now) throw new Error(`Stock ${barang.nama_barang} tidak sama di periode ${periode_stock} !!!`);
+            } else {
+              throw new Error(`Stock ${barang.nama_barang} tidak ditemukan di periode ${periode_stock} !!!`);
+            }
+          }
+        } else {
+          const stock = await cari_stock_barang.findOne({ attributes: ["periode", "barcode", "stock"], where: { barcode: barang.barcode, periode } });
+          const stock_real = await cari_stock_real_barang.findOne({ attributes: ["periode", "barcode", "awal", "masuk", "keluar"], where: { barcode: barang.barcode, periode } });
+          if (stock && stock_real) {
+            const stock_now = Number(stock.stock);
+            const stock_real_now = Number(Number(stock_real.awal) + Number(stock_real.masuk) - Number(stock_real.keluar));
+            if (stock_real_now != stock_now) throw new Error(`Stock ${barang.nama_barang} tidak sama di periode ${periode} !!!`);
+          } else {
+            throw new Error(`Stock ${barang.nama_barang} tidak ditemukan di periode ${periode} !!!`);
+          }
+        }
+      }
+      if (!errors.isEmpty()) throw new Error(errors.array()[0].msg);
+      next();
+    } catch (e) {
+      return res.status(500).json({ message: e.message, error: true });
+    }
+  }
+]
