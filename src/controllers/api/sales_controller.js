@@ -6,6 +6,13 @@ import sq from "../../db";
 import moment from "moment";
 import generate_kode from "../../utils/generate_kode";
 import month_diff from "../../utils/month_diff";
+import path from "path";
+import fs from "fs";
+import { options_pdf } from "../../helpers/options_pdf";
+import pdf from "pdf-creator-node";
+import {format_rupiah, deformat_rupiah} from "../../utils/format";
+require("dotenv").config()
+const {APP_URL} = process.env
 moment.tz.setDefault("Asia/Jakarta");
 
 const sales_cont = {
@@ -21,6 +28,38 @@ const sales_cont = {
     } catch (e) {
       await transaction.rollback();
       return res.status(500).json({ message: e.message, error: true });
+    }
+  },
+  print: async (req, res) => {
+    const transaction = await sq.transaction();
+    const html = fs.readFileSync(path.join(__dirname, "../../helpers/template_invoice_so_pdf.html"), "utf8");
+    const path_file = "./public/pdf/";
+    try {
+      const { nomor } = req.query;
+      const name_file = "faktur-" + nomor + "-" + moment().format("YYYYMMDDHHmmss") + ".pdf";
+      const data = await sales.findOne({ attributes: ["nomor", "tanggal", "keterangan"], where: { nomor } }, { transaction });
+      const detail = await cari_sales.findAll({ attributes: ["barcode", "nama_barang", "stock", "qty", "harga", "disc", "nilai_disc", "total"], where: { nomor } }, { transaction });
+      const data_detail = JSON.parse(JSON.stringify(detail)).map((item, i) => ({ ...item, harga: format_rupiah(item.harga), nilai_disc: format_rupiah(item.nilai_disc), total: format_rupiah(item.total), no: i + 1 }));
+
+      data.setDataValue("list_barang", data_detail);
+      data.setDataValue("waktu_cetak", moment().format("HH:mm:ss"));
+      data.setDataValue("grand_total", format_rupiah(data_detail.reduce((acc, curr) => acc + Number(deformat_rupiah(curr.total)), 0)));
+      if (!fs.existsSync("./public/")) fs.mkdirSync("./public/");
+      if (!fs.existsSync(path_file)) fs.mkdirSync(path_file);
+      const document = {
+        html,
+        data: { sales: data.toJSON() },
+        path: path_file + name_file,
+      };
+      await pdf.create(document, options_pdf)
+      await transaction.commit();
+      setTimeout(() => {
+        fs.unlinkSync(path_file + name_file);
+      }, 1500);
+      return res.status(200).json({ data, message: "Data berhasil didapatkan !!!", error: false, url: `${APP_URL}/pdf/${name_file}` });
+    } catch (e) {
+      await transaction.rollback();
+      return res.status(500).json({ message: e.message, error: true, data });
     }
   },
   save: async (req, res) => {

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {
+      font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+      /* font-family: Arial, Helvetica, sans-serif; */
+      /* font-family: 'Courier New', Courier, monospace; */
+      /* font-weight: bold; */
+    }
+
+    @page {
+      margin-top: 25px;
+    }
+
+    .cf:before,
+    .cf:after {
+      content: " ";
+      /* 1 */
+      display: table;
+      /* 2 */
+    }
+
+    .cf:after {
+      clear: both;
+    }
+
+    /**
+ * For IE 6/7 only
+ * Include this rule to trigger hasLayout and contain floats.
+ */
+
+
+    table {
+      /* font-family: Verdana, Arial, Helvetica, sans-serif; */
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    th {
+      border: 1px solid #333;
+      text-align: left;
+      padding: 3px;
+    }
+
+    div {
+      font-size: 12;
+      /* border: 1px solid #408080; */
+    }
+  </style>
+  <title>PDF TEST</title>
+</head>
+
+<body style="position: relative;">
+  <div class="row cf">
+    <div class="col" style="width: 100%; float: left; text-align: left;">
+      <div style="font-size: 9pt;">
+        PETSHOP
+        <br>
+      </div>
+    </div>
+  </div>
+  <div class="row cf" style="margin-bottom: 2px;">
+    <div class="col cf" style="float: left; width: 50%; text-align: left;">
+      <div style="font-size: 12px; float: left;">
+        NO. INVOICE
+        : {{sales.nomor}}
+      </div>
+      <!-- <div style="font-size: 12px; width: 55%; float: right;">
+        </div> -->
+    </div>
+  </div>
+  <div class="row cf" style="margin-bottom: 2px;">
+    <div class="col cf" style="float: left; width: 50%; text-align: left;">
+      <div style="font-size: 12px; float: left;">
+        TANGGAL
+        : {{sales.tanggal}}
+      </div>
+    </div>
+    <div class="col" style="float: right; width: 50%; text-align: right;">
+      <div style="font-size: 12px; text-transform: uppercase;">
+        Waktu Cetak : {{sales.waktu_cetak}}
+      </div>
+    </div>
+  </div>
+
+  <div style="max-height: 55px;">
+    <table cellpadding="4" cellspacing="0">
+      <thead>
+        <tr>
+          <th style="text-align: center; font-size: 13px;">No</th>
+          <th style="text-align: center; font-size: 13px;">Nama Produk</th>
+          <th style="text-align: center; font-size: 13px;">Qty</th>
+          <th style="text-align: center; font-size: 13px;">Harga</th>
+          <th style="text-align: center; font-size: 13px;">Disc</th>
+          <th style="text-align: center; font-size: 13px;">Jumlah</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each sales.list_barang}}
+        <tr>
+          <td style="text-align: center; font-size: 12px;">{{this.no}}</td>
+          <td style="text-align: left; font-size: 12px;">{{this.nama_barang}}</td>
+          <td style="text-align: center; font-size: 12px;">{{this.qty}}</td>
+          <td style="text-align: right; font-size: 12px;">{{this.harga}}</td>
+          <td style="text-align: right; font-size: 12px;">{{this.disc}}%</td>
+          <td style="text-align: right; font-size: 12px;">{{this.total}}</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+  <div style="position: relative;max-height: 100px;bottom: 0;">
+    <hr>
+    <table border="0" cellspacing="0" cellpadding="0" style="margin-bottom: 13px;">
+      <tr>
+        <td style="width: 20%; font-size: 13px;">KETERANGAN</td>
+        <td style="width: 1%; font-size: 13px;">:</td>
+        <td style="font-size: 13px;">{{ sales.keterangan }}</td>
+        <td style="width: 10%; text-align: right; font-size: 13px;">TOTAL&nbsp;</td>
+        <td style="width: 1%; font-size: 13px;"> : </td>
+        <td style="text-align: right; font-size: 13px; width: 15%;">
+          {{ sales.grand_total }}
+        </td>
+      </tr>
+    </table>
+    <div class="row cf">
+      <div class="col cf" style="float: left; width: 30%;">
+        <div style="font-size: 12px;">
+          DITERIMA,
+        </div>
+      </div>
+      <div class="col cf" style="float: left; width: 30%;">
+        <div style="font-size: 12px;">
+          HORMAT KAMI,
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

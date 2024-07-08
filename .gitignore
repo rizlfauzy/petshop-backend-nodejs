@@ -1,3 +1,4 @@
 node_modules
 public/excels/*.xlsx
+public/pdf/*.pdf
 .env
