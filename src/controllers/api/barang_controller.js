@@ -9,6 +9,8 @@ import moment from "moment";
 import { clear_char, clear_alphabet } from "../../utils/clear";
 import excelJS from "exceljs";
 import { ext_file } from "../../utils/ext_file";
+import cari_stock_real_barang from "../../models/api/cari_stock_real_barang";
+import { Op } from "sequelize";
 const fs = require("fs");
 moment.locale("id");
 
@@ -30,6 +32,22 @@ const barang_cont = {
     try {
       const { barcode, periode } = req.query;
       const data = await cari_stock_barang.findOne({ attributes:["barcode", "nama_barang", "disc", "stock", "harga_modal", "harga_jual"],where: { barcode: barcode.toUpperCase(), periode }, transaction });
+      await transaction.commit();
+      return res.status(200).json({ data, error: false, message: "Data berhasil diambil" });
+    } catch (e) {
+      await transaction.rollback();
+      return res.status(500).json({ message: e.message, error: true });
+    }
+  },
+  all_stock: async (req, res) => {
+    const transaction = await sq.transaction();
+    try {
+      const { periode } = req.query;
+      const where = req.query.q ? {periode, [Op.or]: [{barcode: {[Op.iLike]: `%${req.query.q}%`}}, {nama_barang: {[Op.iLike]: `%${req.query.q}%`}}]} : {periode};
+      const data = await cari_stock_real_barang.findAll({ attributes: ["barcode", "nama_barang", "awal", "masuk", "keluar", "nama_satuan"], where }, {transaction});
+      data.forEach(item => {
+        item.setDataValue("stock", Number(item.awal) + Number(item.masuk) - Number(item.keluar));
+      })
       await transaction.commit();
       return res.status(200).json({ data, error: false, message: "Data berhasil diambil" });
     } catch (e) {
