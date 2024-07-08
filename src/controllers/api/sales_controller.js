@@ -120,7 +120,7 @@ const sales_cont = {
         }
       }
 
-      await sales.create({ nomor, tanggal: moment(tanggal).format("YYYY-MM-DD"), keterangan, pemakai: req.user.myusername, tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss") }, { transaction });
+      await sales.create({ nomor, tanggal: moment(tanggal).format("YYYY-MM-DD"), keterangan:keterangan.toUpperCase(), pemakai: req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss") }, { transaction });
 
       for (const barang of list_barang) {
         await so_barang.create(
@@ -205,7 +205,7 @@ const sales_cont = {
         }
       }
 
-      await sales.update({ tanggal: moment(tanggal).format("YYYY-MM-DD"), keterangan, pemakai: req.user.myusername, tglupdate: moment().format("YYYY-MM-DD HH:mm:ss") }, { where: { nomor }, transaction });
+      await sales.update({ tanggal: moment(tanggal).format("YYYY-MM-DD"), keterangan: keterangan.toUpperCase(), pemakai: req.user.myusername.toUpperCase(), tglupdate: moment().format("YYYY-MM-DD HH:mm:ss") }, { where: { nomor }, transaction });
 
       await so_barang.destroy({ where: { nomor }, transaction });
 
