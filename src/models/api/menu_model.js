@@ -1,7 +1,5 @@
 const Sequelize = require("sequelize");
 import sq from "../../db";
-import grup from "./grup_model";
-
 
 const menu = sq.define(
   "menu",
