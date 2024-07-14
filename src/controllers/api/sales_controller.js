@@ -11,7 +11,6 @@ import { options_pdf } from "../../utils/options";
 import pdf from "pdf-creator-node";
 import { format_rupiah, deformat_rupiah } from "../../utils/format";
 import compile_hbs from "../../utils/compile_hbs";
-import path from "path";
 require("dotenv").config();
 const { APP_URL } = process.env;
 moment.tz.setDefault("Asia/Jakarta");
@@ -46,8 +45,7 @@ const sales_cont = {
       data.setDataValue("grand_total", format_rupiah(data_detail.reduce((acc, curr) => acc + Number(deformat_rupiah(curr.total)), 0)));
       if (!fs.existsSync("./public/")) fs.mkdirSync("./public/");
       if (!fs.existsSync(path_file)) fs.mkdirSync(path_file);
-      // const html = compile_hbs("invoice_penjualan", { sales: data.toJSON() });
-      const html = fs.readFileSync(path.join(__dirname, "../../templates/invoice_penjualan.html"), "utf8");
+      const html = compile_hbs("invoice_penjualan", { sales: data.toJSON() });
       const document = {
         html,
         data: { sales: data.toJSON() },
