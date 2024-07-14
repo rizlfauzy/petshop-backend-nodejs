@@ -8,12 +8,11 @@ import generate_kode from "../../utils/generate_kode";
 import month_diff from "../../utils/month_diff";
 import path from "path";
 import fs from "fs";
-// import { options_pdf } from "../../helpers/options_pdf";
-// import pdf from "pdf-creator-node";
+import { options_pdf } from "../../utils/options";
+import pdf from "pdf-creator-node";
 import { format_rupiah, deformat_rupiah } from "../../utils/format";
-import hbs from "handlebars";
-import compile_hbs from "../../utils/compile_hbs";
-import puppeteer from "puppeteer";
+// import compile_hbs from "../../utils/compile_hbs";
+// import puppeteer from "puppeteer";
 require("dotenv").config();
 const { APP_URL } = process.env;
 moment.tz.setDefault("Asia/Jakarta");
@@ -33,48 +32,13 @@ const sales_cont = {
       return res.status(500).json({ message: e.message, error: true });
     }
   },
-  // print: async (req, res) => {
-  //   const transaction = await sq.transaction();
-  //   const html = fs.readFileSync(path.join(__dirname, "../../helpers/template_invoice_so_pdf.html"), "utf8");
-  //   const path_file = "./public/pdf/";
-  //   try {
-  //     const { nomor } = req.query;
-  //     const name_file = "faktur-" + nomor + "-" + moment().format("YYYYMMDDHHmmss") + ".pdf";
-      // const data = await sales.findOne({ attributes: ["nomor", "tanggal", "keterangan"], where: { nomor } }, { transaction });
-      // const detail = await cari_sales.findAll({ attributes: ["barcode", "nama_barang", "stock", "qty", "harga", "disc", "nilai_disc", "total"], where: { nomor } }, { transaction });
-      // const data_detail = JSON.parse(JSON.stringify(detail)).map((item, i) => ({ ...item, harga: format_rupiah(item.harga), nilai_disc: format_rupiah(item.nilai_disc), total: format_rupiah(item.total), no: i + 1 }));
-
-      // data.setDataValue("list_barang", data_detail);
-      // data.setDataValue("waktu_cetak", moment().format("HH:mm:ss"));
-      // data.setDataValue("grand_total", format_rupiah(data_detail.reduce((acc, curr) => acc + Number(deformat_rupiah(curr.total)), 0)));
-      // if (!fs.existsSync("./public/")) fs.mkdirSync("./public/");
-      // if (!fs.existsSync(path_file)) fs.mkdirSync(path_file);
-  //     const document = {
-  //       html,
-  //       data: { sales: data.toJSON() },
-  //       path: path_file + name_file,
-  //     };
-  //     await pdf.create(document, options_pdf)
-  //     await transaction.commit();
-      // setTimeout(() => {
-      //   fs.unlinkSync(path_file + name_file);
-      // }, 1500);
-  //     return res.status(200).json({ data, message: "Data berhasil didapatkan !!!", error: false, url: `${APP_URL}/pdf/${name_file}` });
-  //   } catch (e) {
-  //     await transaction.rollback();
-  //     return res.status(500).json({ message: e.message, error: true, data });
-  //   }
-  // },
-  print_puppeter: async (req, res) => {
+  print: async (req, res) => {
     const transaction = await sq.transaction();
+    const html = fs.readFileSync(path.join(__dirname, "../../templates/invoice_penjualan.html"), "utf8");
     const path_file = "./public/pdf/";
     try {
       const { nomor } = req.query;
       const name_file = "faktur-" + nomor + "-" + moment().format("YYYYMMDDHHmmss") + ".pdf";
-
-      const browser = await puppeteer.launch({ headless: true, args: ["--no-sandbox", "--disable-setuid-sandbox"] });
-      const page = await browser.newPage();
-
       const data = await sales.findOne({ attributes: ["nomor", "tanggal", "keterangan"], where: { nomor } }, { transaction });
       const detail = await cari_sales.findAll({ attributes: ["barcode", "nama_barang", "stock", "qty", "harga", "disc", "nilai_disc", "total"], where: { nomor } }, { transaction });
       const data_detail = JSON.parse(JSON.stringify(detail)).map((item, i) => ({ ...item, harga: format_rupiah(item.harga), nilai_disc: format_rupiah(item.nilai_disc), total: format_rupiah(item.total), no: i + 1 }));
@@ -84,29 +48,64 @@ const sales_cont = {
       data.setDataValue("grand_total", format_rupiah(data_detail.reduce((acc, curr) => acc + Number(deformat_rupiah(curr.total)), 0)));
       if (!fs.existsSync("./public/")) fs.mkdirSync("./public/");
       if (!fs.existsSync(path_file)) fs.mkdirSync(path_file);
-
-      const content = compile_hbs("invoice_penjualan", { sales: data.toJSON() });
-      await page.setContent(content);
-      await page.emulateMediaType("screen");
-      await page.pdf({
+      const document = {
+        html,
+        data: { sales: data.toJSON() },
         path: path_file + name_file,
-        // format: "A4",
-        margin: { top: "10mm", right: "10mm", bottom: "10mm", left: "10mm" },
-        printBackground: true,
-        width: "612px",
-        height: "396px",
-      });
-      await browser.close();
-      // await transaction.commit();
+      };
+      await pdf.create(document, options_pdf);
+      await transaction.commit();
       setTimeout(() => {
         fs.unlinkSync(path_file + name_file);
       }, 1500);
-      return res.status(200).json({  message: "Data berhasil didapatkan !!!", error: false, url: `${APP_URL}/pdf/${name_file}` });
+      return res.status(200).json({ data, message: "Data berhasil didapatkan !!!", error: false, url: `${APP_URL}/pdf/${name_file}` });
     } catch (e) {
       await transaction.rollback();
-      return res.status(500).json({ message: e.message, error: true });
+      return res.status(500).json({ message: e.message, error: true, data });
     }
   },
+  // print: async (req, res) => {
+  //   const transaction = await sq.transaction();
+  //   const path_file = "./public/pdf/";
+  //   try {
+  //     const { nomor } = req.query;
+  //     const name_file = "faktur-" + nomor + "-" + moment().format("YYYYMMDDHHmmss") + ".pdf";
+
+  //     const browser = await puppeteer.launch({ headless: true, args: ["--no-sandbox", "--disable-setuid-sandbox"] });
+  //     const page = await browser.newPage();
+
+  //     const data = await sales.findOne({ attributes: ["nomor", "tanggal", "keterangan"], where: { nomor } }, { transaction });
+  //     const detail = await cari_sales.findAll({ attributes: ["barcode", "nama_barang", "stock", "qty", "harga", "disc", "nilai_disc", "total"], where: { nomor } }, { transaction });
+  //     const data_detail = JSON.parse(JSON.stringify(detail)).map((item, i) => ({ ...item, harga: format_rupiah(item.harga), nilai_disc: format_rupiah(item.nilai_disc), total: format_rupiah(item.total), no: i + 1 }));
+
+  //     data.setDataValue("list_barang", data_detail);
+  //     data.setDataValue("waktu_cetak", moment().format("HH:mm:ss"));
+  //     data.setDataValue("grand_total", format_rupiah(data_detail.reduce((acc, curr) => acc + Number(deformat_rupiah(curr.total)), 0)));
+  //     if (!fs.existsSync("./public/")) fs.mkdirSync("./public/");
+  //     if (!fs.existsSync(path_file)) fs.mkdirSync(path_file);
+
+  //     const content = compile_hbs("invoice_penjualan", { sales: data.toJSON() });
+  //     await page.setContent(content);
+  //     await page.emulateMediaType("screen");
+  //     await page.pdf({
+  //       path: path_file + name_file,
+  //       // format: "A4",
+  //       margin: { top: "10mm", right: "10mm", bottom: "10mm", left: "10mm" },
+  //       printBackground: true,
+  //       width: "612px",
+  //       height: "396px",
+  //     });
+  //     await browser.close();
+  //     // await transaction.commit();
+  //     setTimeout(() => {
+  //       fs.unlinkSync(path_file + name_file);
+  //     }, 1500);
+  //     return res.status(200).json({ message: "Data berhasil didapatkan !!!", error: false, url: `${APP_URL}/pdf/${name_file}` });
+  //   } catch (e) {
+  //     await transaction.rollback();
+  //     return res.status(500).json({ message: e.message, error: true });
+  //   }
+  // },
   save: async (req, res) => {
     const transaction = await sq.transaction();
     try {
