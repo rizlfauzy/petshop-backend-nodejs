@@ -18,8 +18,8 @@ const otority_cont = {
           },
         },
         order: [
-          ["nourut", "ASC"],
           ["urut_global", "ASC"],
+          ["nourut", "ASC"],
         ],
       });
       data.forEach((item) => {
