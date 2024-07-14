@@ -34,8 +34,6 @@ const sales_cont = {
   },
   print: async (req, res) => {
     const transaction = await sq.transaction()
-    // const html = fs.readFileSync(path.join(__dirname, "../../templates/invoice_penjualan.html"), "utf8");
-
     const path_file = "./public/pdf/";
     try {
       const { nomor } = req.query;
