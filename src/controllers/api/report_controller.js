@@ -30,7 +30,7 @@ const report_cont = {
       await transaction.rollback();
       res.status(500).json({ message: e.message, error: true });
     }
-  }
+  },
 }
 
 export default report_cont;
