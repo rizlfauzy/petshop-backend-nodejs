@@ -7,7 +7,7 @@ const report_cont = {
     try {
       const reports = await cari_oto_report.findAll({
         where: { aktif: true, grup: req.user.mygrup },
-        attributes: ["report", "nama", "pos", "report_url", "barang", "periode", "pdf"],
+        attributes: ["report", "nama", "report_url"],
         order: [["pos", "ASC"]],
       }, { transaction });
       await transaction.commit();
