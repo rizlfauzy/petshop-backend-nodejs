@@ -30,6 +30,10 @@ const report = sq.define("report", {
     allowNull: false,
     defaultValue: Sequelize.NOW,
   },
+  report_url: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
 }, {
   freezeTableName: true,
   timestamps: false,

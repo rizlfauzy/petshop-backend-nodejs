@@ -20,6 +20,10 @@ cari_oto_report.init({
     type: Sequelize.STRING,
     allowNull: false,
   },
+  report_url: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
   barang: {
     type: Sequelize.BOOLEAN,
     allowNull: false,
