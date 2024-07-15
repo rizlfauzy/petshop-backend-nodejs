@@ -7,7 +7,7 @@ import moment from "moment";
 import generate_kode from "../../utils/generate_kode";
 import month_diff from "../../utils/month_diff";
 import fs from "fs";
-import { options_pdf } from "../../utils/options";
+import { options_invoice } from "../../utils/options";
 import pdf from "pdf-creator-node";
 import { format_rupiah, deformat_rupiah } from "../../utils/format";
 import compile_hbs from "../../utils/compile_hbs";
@@ -31,7 +31,7 @@ const sales_cont = {
     }
   },
   print: async (req, res) => {
-    const transaction = await sq.transaction()
+    const transaction = await sq.transaction();
     const path_file = "./public/pdf/";
     try {
       const { nomor } = req.query;
@@ -51,7 +51,7 @@ const sales_cont = {
         data: { sales: data.toJSON() },
         path: path_file + name_file,
       };
-      await pdf.create(document, options_pdf);
+      await pdf.create(document, options_invoice);
       await transaction.commit();
       setTimeout(() => {
         fs.unlinkSync(path_file + name_file);

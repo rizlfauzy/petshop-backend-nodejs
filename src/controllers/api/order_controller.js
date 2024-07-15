@@ -7,7 +7,7 @@ import month_diff from "../../utils/month_diff";
 import moment from "moment-timezone";
 import sq from "../../db";
 import fs from "fs";
-import { options_pdf } from "../../utils/options";
+import { options_invoice } from "../../utils/options";
 import pdf from "pdf-creator-node";
 import { format_rupiah, deformat_rupiah } from "../../utils/format";
 import compile_hbs from "../../utils/compile_hbs";
@@ -51,7 +51,7 @@ const order_cont = {
         data: { order: data.toJSON() },
         path: path_file + name_file,
       };
-      await pdf.create(document, options_pdf);
+      await pdf.create(document, options_invoice);
       await transaction.commit();
       setTimeout(() => {
         fs.unlinkSync(path_file + name_file);
