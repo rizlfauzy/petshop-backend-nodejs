@@ -74,4 +74,5 @@ export default Router()
   .put("/repack-barang", is_login, check_update_repack_barang, repack_barang_cont.update)
   .delete("/repack-barang", is_login, check_cancel_repack_barang, repack_barang_cont.cancel)
   .get("/reports", is_login, report_cont.reports)
+  .get("/report", is_login, report_cont.report)
   .post("/logout", is_login, auth_cont.logout);
