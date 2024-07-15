@@ -1,5 +1,6 @@
 import cari_oto_report from "../../models/api/cari_oto_report";
 import cari_pembelian from "../../models/api/cari_order";
+import cari_sales from "../../models/api/cari_sales";
 
 import { options_report } from "../../utils/options";
 import pdf from "pdf-creator-node";
@@ -77,7 +78,6 @@ const report_cont = {
       const waktu_cetak = moment().format("HH:mm:ss");
       const data = {
         headers: JSON.parse(JSON.stringify(headers)).map((item) => ({ ...item, tanggal: moment(item.tanggal).format("DD-MM-YYYY"), list_details: data_details.filter((x) => x.nomor === item.nomor) })),
-        details: data_details,
         grand_total,
         tglawal,
         tglakhir,
@@ -104,6 +104,61 @@ const report_cont = {
       return res.status(500).json({ message: e.message, error: true });
     }
   },
+  sales: async (req, res) => {
+    const transaction = await sq.transaction();
+    const path_file = "./public/pdf/";
+    try {
+      const { tgl_awal, tgl_akhir } = req.query;
+      const nama_file = `Laporan_Penjualan_${moment().format("YYYYMMDDHHmmss")}.pdf`;
+      const headers = await cari_sales.findAll(
+        {
+          where: literal(`to_char(tanggal, 'YYYYMMDD') BETWEEN '${tgl_awal}' AND '${tgl_akhir}'`),
+          attributes: ["nomor", "tanggal"],
+          group: ["nomor", "tanggal"],
+        },
+        { transaction }
+      );
+      const details = await cari_sales.findAll(
+        {
+          where: literal(`to_char(tanggal, 'YYYYMMDD') BETWEEN '${tgl_awal}' AND '${tgl_akhir}'`),
+          attributes: ["nomor", "barcode", "nama_barang", "qty", "harga", "disc", "nilai_disc", "total"],
+        },
+        { transaction }
+      );
+      const data_details = JSON.parse(JSON.stringify(details)).map((item) => ({ ...item, qty: format_rupiah(item.qty, {}), harga: format_rupiah(item.harga), disc: format_rupiah(item.disc, {}), nilai_disc: format_rupiah(item.nilai_disc), total: format_rupiah(item.total) }));
+
+      const grand_total = format_rupiah(details.reduce((acc, curr) => acc + Number(curr.total), 0));
+      const tglawal = moment(tgl_awal).format("DD MMMM YYYY");
+      const tglakhir = moment(tgl_akhir).format("DD MMMM YYYY");
+      const waktu_cetak = moment().format("HH:mm:ss");
+      const data = {
+        headers: JSON.parse(JSON.stringify(headers)).map((item) => ({ ...item, tanggal: moment(item.tanggal).format("DD-MM-YYYY"), list_details: data_details.filter((x) => x.nomor === item.nomor) })),
+        grand_total,
+        tglawal,
+        tglakhir,
+        waktu_cetak,
+        title: "Laporan Penjualan",
+      };
+
+      if (!fs.existsSync("./public/")) fs.mkdirSync("./public/");
+      if (!fs.existsSync(path_file)) fs.mkdirSync(path_file);
+
+      const html = compile_hbs("report_sales", data);
+      const document = { html, data, path: path_file + nama_file };
+
+      await pdf.create(document, options_report);
+
+      setTimeout(() => {
+        fs.unlinkSync(path_file + nama_file);
+      }, 1500);
+
+      await transaction.commit();
+      return res.status(200).json({ url: `${APP_URL}/pdf/${nama_file}`, message: "Laporan berhasil diprint", error: false });
+    } catch (e) {
+      await transaction.rollback();
+      return res.status(500).json({ message: e.message, error: true });
+    }
+  }
 };
 
 export default report_cont;
