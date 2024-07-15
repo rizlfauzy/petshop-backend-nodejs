@@ -12,13 +12,13 @@
   </head>
 
   <body>
-    <h4 style="text-align: center;">{{title}}</h4>
+    <h4 style="text-align: center;font-size: 18px;">{{title}}</h4>
     <div class="row cf">
       <div class="col cf" style="float: left; width: 50%; text-align: left;">
-        <div style="font-size: 13px; width: 20%; float: left;">
+        <div style="font-size: 16px; width: 20%; float: left;">
           PERIODE
         </div>
-        <div style="font-size: 13px; width: 80%; float: right;">
+        <div style="font-size: 16px; width: 80%; float: right;">
           :
           {{tglawal}}
           <sup style="font-size: 10px;">s</sup>/<sub style="font-size: 10px;">d</sub>
@@ -26,14 +26,49 @@
         </div>
       </div>
       <div class="col" style="float: right; width: 50%; text-align: right;">
-        <div style="font-size: 13px; width: 45%; float: left;">
+        <div style="font-size: 16px; width: 45%; float: left;">
         </div>
-        <div style="font-size: 13px; width: 55%; float: right;">
+        <div style="font-size: 16px; width: 55%; float: right;">
           Dicetak :
-          {{orders.waktu_cetak}}
+          {{waktu_cetak}}
         </div>
       </div>
     </div>
+
+    <table class="border" style="margin-top: 10px; vertical-align: top;" width="100%">
+      <thead>
+        <tr>
+          <th class="border" style="line-height: 1.5; text-align: center;">Barcode</th>
+          <th class="border" style="line-height: 1.5; text-align: center;">Nama Barang</th>
+          <th class="border" style="line-height: 1.5; text-align: center;">Qty</th>
+          <th class="border" style="line-height: 1.5; text-align: center;">Harga</th>
+          <th class="border" style="line-height: 1.5; text-align: center;">Jumlah</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each headers}}
+          <tr>
+            <th class="border" style="line-height: 1.5; text-align: left;">Tanggal: {{this.tanggal}}</th>
+            <th colspan="4" class="border" style="line-height: 1.5; text-align: left;">NO PB: {{this.nomor}}</th>
+          </tr>
+          {{#each this.list_details}}
+            <tr>
+              <td class="border" style="line-height: 1.3; text-align: left;">{{this.barcode}}</td>
+              <td class="border" style="line-height: 1.3; text-align: left;">{{this.nama_barang}}</td>
+              <td class="border" style="line-height: 1.3; text-align: right;">{{this.qty}}</td>
+              <td class="border" style="line-height: 1.3; text-align: right;">{{this.harga}}</td>
+              <td class="border" style="line-height: 1.3; text-align: right;">{{this.total}}</td>
+            </tr>
+          {{/each}}
+        {{/each}}
+      </tbody>
+      <tfoot>
+        <tr>
+          <th colspan="4" class="border" style="line-height: 1.5; text-align: right;padding-right: 6px;">Total :</th>
+          <th class="border" style="line-height: 1.5; text-align: right;">{{grand_total}}</th>
+        </tr>
+      </tfoot>
+    </table>
   </body>
 
 </html>
