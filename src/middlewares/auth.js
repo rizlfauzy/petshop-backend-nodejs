@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import hist_login from "../models/hist/hist_login_model";
+import konfigurasi from "../models/api/konfigurasi_model";
 const Sequelize = require("sequelize");
 import sq from "../db";
 require("dotenv").config();
@@ -16,6 +17,12 @@ export const is_login = async (req, res, next) => {
     delete decoded_data.exp;
     delete decoded_data.iat;
 
+    const konf = await konfigurasi.findOne({ where: { kodetoko: decoded_data.mycabang } });
+    if (!konf) throw new Error("Configuration not found");
+
+    const tglawal_periode = konf.tglawal;
+    const tglakhir_periode = konf.tglakhir;
+
     const oto_menu = await sq.query(`SELECT * FROM get_oto_menu('${decoded_data.mygrup}')`, { type: Sequelize.QueryTypes.SELECT });
     // group by grup menu with program
     const grup_menu = await sq.query(`SELECT * FROM get_grup_menu('${decoded_data.mygrup}')`, { type: Sequelize.QueryTypes.SELECT });
@@ -24,7 +31,7 @@ export const is_login = async (req, res, next) => {
     const url = req.query.path;
     const cek_menu = await sq.query(`SELECT open, add, update, cancel, accept, backdate FROM cari_oto_menu WHERE (linkmenu = '${url}' or linkdetail = '${url}') and grup = '${decoded_data.mygrup}' and aktif = 't'`, { type: Sequelize.QueryTypes.SELECT });
 
-    req.user = { ...decoded_data, oto_menu, oto_report, cek_menu: cek_menu[0] || {}, grup_menu: grup_menu || {} };
+    req.user = { ...decoded_data, tglawal_periode, tglakhir_periode, oto_menu, oto_report, cek_menu: cek_menu[0] || {}, grup_menu: grup_menu || {} };
     next();
   } catch (e) {
     if (e.message == "jwt expired") return res.status(401).json({ message: "Token expired", error: true });
