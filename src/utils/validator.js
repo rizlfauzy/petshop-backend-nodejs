@@ -156,6 +156,20 @@ export const check_update_user = [
   },
 ];
 
+export const check_update_periode = [
+  check("tglawal", "Tanggal Awal harus diisi").notEmpty().isString(),
+  check("tglakhir", "Tanggal Akhir harus diisi").notEmpty().isString(),
+  async (req, res, next) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) throw new Error(errors.array()[0].msg);
+      next();
+    } catch (e) {
+      return res.status(500).json({ message: e.message, error: true });
+    }
+  },
+];
+
 export const check_save_satuan = [
   check("nama", "Nama harus diisi").notEmpty().isString(),
   async (req, res, next) => {
@@ -311,7 +325,7 @@ export const check_save_otority = [
       reports.forEach((item) => {
         if (!item.barang && !item.periode && !item.pdf) throw new Error("Harus pilih akses report !!!");
       });
-      
+
       const errors = validationResult(req);
       if (!errors.isEmpty()) throw new Error(errors.array()[0].msg);
       next();

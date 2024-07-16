@@ -16,7 +16,7 @@ import repack_barang_cont from "../../controllers/api/repack_barang_controller";
 import report_cont from "../../controllers/api/report_controller";
 import multer from "multer";
 import { is_login } from "../../middlewares/auth";
-import { check_login, check_password, check_info, check_page, check_save_grup, check_update_grup, check_register_user, check_update_user, check_save_satuan, check_update_satuan, check_save_kategori, check_update_kategori, check_save_barang, check_update_barang, check_save_otority, check_save_order, check_update_order, check_cancel_order, check_save_sales, check_update_sales, check_cancel_sales, check_save_barang_rusak, check_update_barang_rusak, check_cancel_barang_rusak, check_save_repack_barang, check_update_repack_barang, check_cancel_repack_barang } from "../../utils/validator";
+import { check_login, check_password, check_info, check_page, check_save_grup, check_update_grup, check_register_user, check_update_user, check_update_periode, check_save_satuan, check_update_satuan, check_save_kategori, check_update_kategori, check_save_barang, check_update_barang, check_save_otority, check_save_order, check_update_order, check_cancel_order, check_save_sales, check_update_sales, check_cancel_sales, check_save_barang_rusak, check_update_barang_rusak, check_cancel_barang_rusak, check_save_repack_barang, check_update_repack_barang, check_cancel_repack_barang } from "../../utils/validator";
 
 const upload = multer({ dest: "./public" });
 
@@ -34,6 +34,8 @@ export default Router()
   .get("/user", is_login, auth_cont.one)
   .post("/user", is_login, check_register_user, auth_cont.register)
   .put("/user", is_login, check_update_user, auth_cont.update)
+  .get("/periode-stock", is_login, auth_cont.get_periode)
+  .put("/periode-stock", is_login, check_update_periode, auth_cont.update_periode)
   .get("/satuan", is_login, satuan_cont.one)
   .post("/satuan", is_login, check_save_satuan, satuan_cont.save)
   .put("/satuan", is_login, check_update_satuan, satuan_cont.update)

@@ -25,8 +25,6 @@ const auth_cont = {
           mycabang: user.kodetoko,
           tglawal_periode: konf.tglawal,
           tglakhir_periode: konf.tglakhir,
-          kodeharga: konf.kodeharga,
-          toko_bb: konf.toko_bb,
         },
         JWT_SECRET_KEY,
         {
@@ -79,37 +77,41 @@ const auth_cont = {
                   },
                   barcode: good.barcode,
                 },
-                order: [
-                  ["periode", "desc"]
-                ],
-                limit: 1
+                order: [["periode", "desc"]],
+                limit: 1,
               },
               {
                 transaction: trans,
               }
             );
             if (stocks_before.length > 0) {
-              await inventory_barang.create({
-                barcode: good.barcode.toUpperCase(),
-                periode: moment().format("YYYYMM"),
-                qty_awal: Number(stocks_before[0].qty_awal) + Number(stocks_before[0].qty_masuk) - Number(stocks_before[0].qty_keluar),
-                qty_masuk: 0,
-                qty_keluar: 0,
-                pemakai: username.toUpperCase(),
-                tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss"),
-              }, {transaction: trans});
+              await inventory_barang.create(
+                {
+                  barcode: good.barcode.toUpperCase(),
+                  periode: moment().format("YYYYMM"),
+                  qty_awal: Number(stocks_before[0].qty_awal) + Number(stocks_before[0].qty_masuk) - Number(stocks_before[0].qty_keluar),
+                  qty_masuk: 0,
+                  qty_keluar: 0,
+                  pemakai: username.toUpperCase(),
+                  tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss"),
+                },
+                { transaction: trans }
+              );
             } else {
-              await inventory_barang.create({
-                barcode: good.barcode.toUpperCase(),
-                periode: moment().format("YYYYMM"),
-                qty_awal: 0,
-                qty_masuk: 0,
-                qty_keluar: 0,
-                pemakai: username.toUpperCase(),
-                tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss"),
-              }, {
-                transaction: trans
-              });
+              await inventory_barang.create(
+                {
+                  barcode: good.barcode.toUpperCase(),
+                  periode: moment().format("YYYYMM"),
+                  qty_awal: 0,
+                  qty_masuk: 0,
+                  qty_keluar: 0,
+                  pemakai: username.toUpperCase(),
+                  tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss"),
+                },
+                {
+                  transaction: trans,
+                }
+              );
             }
           }
         }
@@ -158,6 +160,32 @@ const auth_cont = {
       const { username, password, kode_grup: grup, aktif } = req.body;
       const enc_pass = encodeURIComponent(btoa(password));
       await login.update({ password: enc_pass, pemakai: req.user.myusername.toUpperCase(), grup, aktif }, { where: { username: username.toUpperCase() }, transaction });
+      await transaction.commit();
+      return res.status(200).json({ error: false, message: "Data berhasil diubah" });
+    } catch (e) {
+      await transaction.rollback();
+      return res.status(500).json({ message: e.message, error: true });
+    }
+  },
+  get_periode: async (req, res) => {
+    const transaction = await sq.transaction();
+    try {
+      const data = await konfigurasi.findOne({ attributes: ["tglawal", "tglakhir"],where: { kodetoko: req.user.mycabang } }, { transaction });
+      await transaction.commit();
+      return res.status(200).json({ data: data || {}, error: false, message: "Data berhasil diambil" });
+    } catch (e) {
+      await transaction.rollback();
+      return res.status(500).json({ message: e.message, error: true });
+    }
+  },
+  update_periode: async (req, res) => {
+    const transaction = await sq.transaction();
+    try {
+      const { tglawal, tglakhir } = req.body;
+      await konfigurasi.update(
+        { tglawal: moment(tglawal).format("YYYY-MM-DD"), tglakhir: moment(tglakhir).format("YYYY-MM-DD"), pemakai: req.user.myusername.toUpperCase(), tglupdate: moment().format("YYYY-MM-DD HH:mm:ss") },
+        { where: { kodetoko: req.user.mycabang }, transaction }
+      );
       await transaction.commit();
       return res.status(200).json({ error: false, message: "Data berhasil diubah" });
     } catch (e) {

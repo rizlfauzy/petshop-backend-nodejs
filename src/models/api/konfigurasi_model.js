@@ -8,26 +8,22 @@ const konfigurasi = sq.define("konfigurasi", {
     allowNull: false,
     autoIncrement: true,
   },
-  kodeharga: {
-    type: Sequelize.STRING,
-    allowNull: false,
-  },
   tglawal: {
-    type: Sequelize.DATE,
+    type: Sequelize.DATEONLY,
     allowNull: true,
   },
   tglakhir: {
-    type: Sequelize.DATE,
+    type: Sequelize.DATEONLY,
     allowNull: true,
-  },
-  toko_bb: {
-    type: Sequelize.BOOLEAN,
-    allowNull: false,
   },
   kodetoko: {
     type: Sequelize.STRING,
     allowNull: false,
-  }
+  },
+  tglupdate: {
+    type: Sequelize.DATE,
+    allowNull: true,
+  },
 }, {
   freezeTableName: true,
   timestamps: false,
