@@ -300,10 +300,18 @@ export const check_save_otority = [
   async (req, res, next) => {
     try {
       const menus = JSON.parse(req.body.menus);
+      const reports = JSON.parse(req.body.reports);
+
       if (menus.length === 0) throw new Error("Harus pilih menu !!!");
       menus.forEach((item) => {
         if (!item.add && !item.update && !item.cancel) throw new Error("Harus pilih akses menu !!!");
       });
+
+      if (reports.length === 0) throw new Error("Harus pilih report !!!");
+      reports.forEach((item) => {
+        if (!item.barang && !item.periode && !item.pdf) throw new Error("Harus pilih akses report !!!");
+      });
+      
       const errors = validationResult(req);
       if (!errors.isEmpty()) throw new Error(errors.array()[0].msg);
       next();
