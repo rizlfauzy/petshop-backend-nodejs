@@ -57,6 +57,9 @@ const report_cont = {
     const path_file = "./public/pdf/";
     try {
       const { tgl_awal, tgl_akhir } = req.query;
+
+      if (!tgl_awal || !tgl_akhir) throw new Error("Tanggal awal dan tanggal akhir harus diisi");
+      
       const nama_file = `Laporan_Pembelian_${moment().format("YYYYMMDDHHmmss")}.pdf`;
       const headers = await cari_pembelian.findAll(
         {
@@ -112,6 +115,9 @@ const report_cont = {
     const path_file = "./public/pdf/";
     try {
       const { tgl_awal, tgl_akhir } = req.query;
+
+      if (!tgl_awal || !tgl_akhir) throw new Error("Tanggal awal dan tanggal akhir harus diisi");
+
       const nama_file = `Laporan_Penjualan_${moment().format("YYYYMMDDHHmmss")}.pdf`;
       const headers = await cari_sales.findAll(
         {
@@ -174,6 +180,9 @@ const report_cont = {
     const path_file = "./public/pdf/";
     try {
       const { tgl_awal, tgl_akhir } = req.query;
+
+      if (!tgl_awal || !tgl_akhir) throw new Error("Tanggal awal dan tanggal akhir harus diisi");
+
       const nama_file = `Kartu_Stocks_${moment().format("YYYYMMDDHHmmss")}.pdf`;
       const details = await sq.query(`SELECT * FROM get_stocks_by_date(:tgl_awal, :tgl_akhir)`, { replacements: { tgl_awal, tgl_akhir }, type: Sequelize.QueryTypes.SELECT, transaction });
       const data_details = JSON.parse(JSON.stringify(details)).map((item, i) => ({
@@ -220,6 +229,10 @@ const report_cont = {
     const path_file = "./public/pdf/";
     try {
       const { tgl_awal, tgl_akhir, barcode } = req.query;
+
+      if (!tgl_awal || !tgl_akhir) throw new Error("Tanggal awal dan tanggal akhir harus diisi");
+      if (!barcode) throw new Error("Barcode harus diisi");
+
       const nama_file = `Kartu_Stock_Per_Barang_${moment().format("YYYYMMDDHHmmss")}.pdf`;
 
       const barang = await barang_model.findOne({
