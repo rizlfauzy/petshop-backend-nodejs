@@ -19,14 +19,14 @@ export const options_invoice = {
 export const options_report = {
   format: "F4",
   orientation: "portrait",
-  border: "10mm",
-  footer: {
-    height: "20mm",
-    content: {
-      first: "Cover Page",
-      2: "Second Page",
-      default: '<span style="color: #444;">{{page}}</span>/<span>{{pages}}</span>', // fallback value
-      last: "Last Page",
-    },
-  },
+  border: "5mm",
+  // footer: {
+  //   height: "20mm",
+  //   content: {
+  //     first: "Cover Page",
+  //     2: "Second Page",
+  //     default: '<span style="color: #444;">{{page}}</span>/<span>{{pages}}</span>', // fallback value
+  //     last: "Last Page",
+  //   },
+  // },
 };
