@@ -2,7 +2,7 @@ import login from "../../models/api/login_model";
 import sq from "../../db";
 import { encrypt, decrypt } from "../../utils/encrypt";
 
-const password = {
+const password_cont = {
   show: async (req, res) => {
     try {
       const user = await login.findOne({ where: { username: req.user.myusername.toUpperCase() } });
@@ -29,4 +29,4 @@ const password = {
   },
 };
 
-export default password;
+export default password_cont;

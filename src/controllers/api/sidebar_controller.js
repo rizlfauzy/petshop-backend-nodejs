@@ -1,4 +1,4 @@
-const sidebar = {
+const sidebar_cont = {
   index: async (req, res) => {
     try {
       return res.status(200).json({
@@ -19,7 +19,7 @@ const sidebar = {
     } catch (e) {
       return res.status(500).json({ message: e.message, error: true });
     }
-  }
-}
+  },
+};
 
-export default sidebar;
+export default sidebar_cont;

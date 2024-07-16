@@ -155,7 +155,7 @@ const otority_cont = {
 
       reports.forEach(async (item) => {
         const { report, periode, barang, pdf } = item;
-        await oto_report.create({ grup: kode_grup, report, periode, barang, pdf });
+        await oto_report.create({ grup: kode_grup, report, aktif: true, periode, barang, pdf });
       });
 
       await transaction.commit();

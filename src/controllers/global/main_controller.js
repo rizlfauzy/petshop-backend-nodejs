@@ -1,11 +1,20 @@
 import pagination from "../../utils/pagination";
 
-const main = {
+const main_cont = {
   index: async (req, res) => {
     try {
       const { body } = req;
       const where = JSON.parse(body.where) || body.where;
-      const data = await pagination.findPage({ name: body.name, select: JSON.parse(body.select), page: parseInt(body.page), limit: parseInt(body.limit), order: JSON.parse(body.order), where, likes: JSON.parse(body.likes), keyword: body.keyword });
+      const data = await pagination.findPage({
+        name: body.name,
+        select: JSON.parse(body.select),
+        page: parseInt(body.page),
+        limit: parseInt(body.limit),
+        order: JSON.parse(body.order),
+        where,
+        likes: JSON.parse(body.likes),
+        keyword: body.keyword,
+      });
 
       return res.status(200).json({ data, error: false, message: "Data berhasil diambil" });
     } catch (e) {
@@ -14,4 +23,4 @@ const main = {
   },
 };
 
-export default main;
+export default main_cont;

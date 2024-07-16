@@ -3,7 +3,7 @@ import sq from "../../db";
 import moment from "moment";
 moment.locale("id");
 
-const info = {
+const info_cont = {
   index: async (req, res) => {
     const transaction = await sq.transaction();
     try {
@@ -28,4 +28,4 @@ const info = {
   },
 };
 
-export default info;
+export default info_cont;

@@ -7,6 +7,8 @@ import cari_barang_view from "../../models/api/cari_barang_model.js";
 import inventory_barang from "../../models/api/inventory_barang_model.js";
 import moment from "moment";
 import { decrypt, encrypt } from "../../utils/encrypt.js";
+import oto_menu from "../../models/api/oto_menu_model.js";
+import oto_report from "../../models/api/oto_report_model.js";
 require("dotenv").config();
 const Sequelize = require("sequelize");
 const { JWT_SECRET_KEY } = process.env;
@@ -147,7 +149,21 @@ const auth_cont = {
     try {
       const { username, password, kode_grup: grup } = req.body;
       const enc_pass = encrypt(password);
+
       await login.create({ username: username.toUpperCase(), password: enc_pass, grup, tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss"), pemakai: req.user.myusername.toUpperCase() }, { transaction });
+
+      await oto_menu.destroy({ where: { grup } }, { transaction });
+      await oto_menu.bulkCreate([
+        { grup, nomenu: "M001", open: true, add: true, pemakai: req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss") },
+        { grup, nomenu: "M002", open: true, add: true, pemakai: req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss") },
+        { grup, nomenu: "M010", open: true, add: true, pemakai: req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss") },
+      ], { transaction });
+
+      await oto_report.destroy({ where: { grup } }, { transaction });
+      await oto_report.create({
+        grup, report: "R002", aktif: true, periode: true, barang: true, pdf: true, pemakai: req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss")
+      });
+
       await transaction.commit();
       return res.status(200).json({ error: false, message: "Data berhasil disimpan" });
     } catch (e) {
@@ -159,8 +175,30 @@ const auth_cont = {
     const transaction = await sq.transaction();
     try {
       const { username, password, kode_grup: grup, aktif } = req.body;
+
+      const res_user = await login.findOne({ where: { username: username.toUpperCase() }, transaction });
+      if (!res_user.aktif && aktif) {
+        await oto_menu.destroy({ where: { grup } }, { transaction });
+        await oto_menu.bulkCreate([
+          { grup, nomenu: "M001", open: true, add: true, pemakai: req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss") },
+          { grup, nomenu: "M002", open: true, add: true, pemakai: req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss") },
+          { grup, nomenu: "M010", open: true, add: true, pemakai: req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss") },
+        ], { transaction });
+
+        await oto_report.destroy({ where: { grup } }, { transaction });
+        await oto_report.create({
+          grup, report: "R002", aktif: true, periode: true, barang: true, pdf: true, pemakai: req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss")
+        });
+      }
+
       const enc_pass = encrypt(password);
       await login.update({ password: enc_pass, pemakai: req.user.myusername.toUpperCase(), grup, aktif }, { where: { username: username.toUpperCase() }, transaction });
+
+      if (!aktif) {
+        await oto_menu.destroy({ where: { grup: kode } }, { transaction });
+        await oto_report.destroy({ where: { grup: kode } }, { transaction });
+      }
+
       await transaction.commit();
       return res.status(200).json({ error: false, message: "Data berhasil diubah" });
     } catch (e) {
