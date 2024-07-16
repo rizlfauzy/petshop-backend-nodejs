@@ -6,6 +6,7 @@ import konfigurasi from "../../models/api/konfigurasi_model.js";
 import cari_barang_view from "../../models/api/cari_barang_model.js";
 import inventory_barang from "../../models/api/inventory_barang_model.js";
 import moment from "moment";
+import { decrypt, encrypt } from "../../utils/encrypt.js";
 require("dotenv").config();
 const Sequelize = require("sequelize");
 const { JWT_SECRET_KEY } = process.env;
@@ -133,7 +134,7 @@ const auth_cont = {
     try {
       const { username } = req.query;
       const data = await sq.query(`SELECT * FROM cari_user where username = :username`, { replacements: { username: username.toUpperCase() }, type: Sequelize.QueryTypes.SELECT, transaction });
-      const password = data[0] ? decodeURIComponent(atob(data[0].password)) : "";
+      const password = data[0] ? decrypt(data[0].password) : "";
       await transaction.commit();
       return res.status(200).json({ data: { ...data[0], password } || {}, error: false, message: "Data berhasil diambil" });
     } catch (e) {
@@ -145,7 +146,7 @@ const auth_cont = {
     const transaction = await sq.transaction();
     try {
       const { username, password, kode_grup: grup } = req.body;
-      const enc_pass = encodeURIComponent(btoa(password));
+      const enc_pass = encrypt(password);
       await login.create({ username: username.toUpperCase(), password: enc_pass, grup, tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss"), pemakai: req.user.myusername.toUpperCase() }, { transaction });
       await transaction.commit();
       return res.status(200).json({ error: false, message: "Data berhasil disimpan" });
@@ -158,7 +159,7 @@ const auth_cont = {
     const transaction = await sq.transaction();
     try {
       const { username, password, kode_grup: grup, aktif } = req.body;
-      const enc_pass = encodeURIComponent(btoa(password));
+      const enc_pass = encrypt(password);
       await login.update({ password: enc_pass, pemakai: req.user.myusername.toUpperCase(), grup, aktif }, { where: { username: username.toUpperCase() }, transaction });
       await transaction.commit();
       return res.status(200).json({ error: false, message: "Data berhasil diubah" });

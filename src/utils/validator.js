@@ -14,6 +14,7 @@ import moment from "moment";
 import sales from "../models/api/sales_model";
 import cari_barang_rusak from "../models/api/cari_barang_rusak";
 import cari_repack_barang from "../models/api/cari_repack_barang";
+import { encrypt } from "./encrypt";
 
 export const check_login = [
   check("username", "Username harus diisi").notEmpty().isString(),
@@ -21,7 +22,7 @@ export const check_login = [
   async (req, res, next) => {
     try {
       const { username, password } = req.body;
-      const enc_pass = encodeURIComponent(btoa(password));
+      const enc_pass = encrypt(password);
       const user = await login.findOne({ where: { username: username.toUpperCase(), aktif: true } });
       if (!user) throw new Error("Username tidak ditemukan");
       if (user.password !== enc_pass) throw new Error("Password salah");
@@ -55,7 +56,7 @@ export const check_password = [
   async (req, res, next) => {
     try {
       const { username, password } = req.body;
-      const enc_pass = encodeURIComponent(btoa(password));
+      const enc_pass = encrypt(password);
       const user = await login.findOne({ where: { username: username.toUpperCase(), password: enc_pass } });
       if (user) throw new Error("Pasword sama dengan sebelumnya");
       const errors = validationResult(req);
