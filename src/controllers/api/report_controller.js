@@ -10,6 +10,7 @@ import moment from "moment";
 import sq from "../../db";
 import { literal } from "sequelize";
 import fs from "fs";
+const Sequelize = require("sequelize");
 require("dotenv").config();
 const { APP_URL } = process.env;
 
@@ -125,7 +126,14 @@ const report_cont = {
         },
         { transaction }
       );
-      const data_details = JSON.parse(JSON.stringify(details)).map((item) => ({ ...item, qty: format_rupiah(item.qty, {}), harga: format_rupiah(item.harga), disc: format_rupiah(item.disc, {}), nilai_disc: format_rupiah(item.nilai_disc), total: format_rupiah(item.total) }));
+      const data_details = JSON.parse(JSON.stringify(details)).map((item) => ({
+        ...item,
+        qty: format_rupiah(item.qty, {}),
+        harga: format_rupiah(item.harga),
+        disc: format_rupiah(item.disc, {}),
+        nilai_disc: format_rupiah(item.nilai_disc),
+        total: format_rupiah(item.total),
+      }));
 
       const grand_total = format_rupiah(details.reduce((acc, curr) => acc + Number(curr.total), 0));
       const tglawal = moment(tgl_awal).format("DD MMMM YYYY");
@@ -158,7 +166,46 @@ const report_cont = {
       await transaction.rollback();
       return res.status(500).json({ message: e.message, error: true });
     }
-  }
+  },
+  stocks: async (req, res) => {
+    const transaction = await sq.transaction();
+    const path_file = "./public/pdf/";
+    try {
+      const { tgl_awal, tgl_akhir } = req.query;
+      const nama_file = `Kartu_Stocks_${moment().format("YYYYMMDDHHmmss")}.pdf`;
+      const details = await sq.query(`SELECT * FROM get_stocks_by_date(:tgl_awal, :tgl_akhir)`, { replacements: { tgl_awal, tgl_akhir }, type: Sequelize.QueryTypes.SELECT, transaction });
+      const data_details = JSON.parse(JSON.stringify(details)).map((item, i) => ({ ...item, qty_awal: format_rupiah(item.qty_awal, {}), qty_masuk: format_rupiah(item.qty_masuk, {}), qty_keluar: format_rupiah(item.qty_keluar, {}), stock: format_rupiah(item.stock, {}), no: i + 1 }));
+
+      const tglawal = moment(tgl_awal).format("DD MMMM YYYY");
+      const tglakhir = moment(tgl_akhir).format("DD MMMM YYYY");
+      const waktu_cetak = moment().format("HH:mm:ss");
+      const data = {
+        details: data_details,
+        tglawal,
+        tglakhir,
+        waktu_cetak,
+        title: "Kartu Stocks",
+      };
+
+      if (!fs.existsSync("./public/")) fs.mkdirSync("./public/");
+      if (!fs.existsSync(path_file)) fs.mkdirSync(path_file);
+
+      const html = compile_hbs("kartu_stocks", data);
+      const document = { html, data, path: path_file + nama_file };
+
+      await pdf.create(document, options_report);
+
+      setTimeout(() => {
+        fs.unlinkSync(path_file + nama_file);
+      }, 1500);
+
+      await transaction.commit();
+      return res.status(200).json({ message: "Data berhasil ditemukan", error: false, url: `${APP_URL}/pdf/${nama_file}` });
+    } catch (e) {
+      await transaction.rollback();
+      return res.status(500).json({ message: e.message, error: true });
+    }
+  },
 };
 
 export default report_cont;
