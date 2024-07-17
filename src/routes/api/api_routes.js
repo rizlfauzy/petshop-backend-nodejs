@@ -51,6 +51,9 @@ const upload = multer({ dest: "./public" });
 
 export default Router()
   .post("/login", check_login, auth_cont.login)
+  .post("/page-login", check_page, main_cont.index)
+  .get("/grup-login", grup_cont.one)
+  .post("/register", check_register_user, auth_cont.register)
   .post("/page", is_login, check_page, main_cont.index)
   .get("/sidebar", is_login, sidebar_cont.index)
   .get("/password", is_login, password_cont.show)

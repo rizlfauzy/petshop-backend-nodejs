@@ -36,7 +36,7 @@ const grup_cont = {
       await oto_report.destroy({ where: { grup: kode } }, { transaction });
       await oto_report.create({
         grup: kode, report: 'R002', aktif: true, periode: true, pdf: true, pemakai: req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss")
-      })
+      }, {transaction});
 
       await transaction.commit();
       return res.status(200).json({ error: false, message: "Data berhasil disimpan" });
@@ -67,7 +67,7 @@ const grup_cont = {
         await oto_report.destroy({ where: { grup: kode } }, { transaction });
         await oto_report.create({
           grup:kode, report: 'R002', aktif: true, periode: true, pdf: true, pemakai: req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss")
-        })
+        }, { transaction });
       }
 
       await grup.update({ nama: nama.toUpperCase(), pemakai: req.user.myusername.toUpperCase(), aktif }, { where: { kode }, transaction });

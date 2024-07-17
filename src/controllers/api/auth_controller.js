@@ -150,20 +150,20 @@ const auth_cont = {
       const { username, password, kode_grup: grup } = req.body;
       const enc_pass = encrypt(password);
 
-      await login.create({ username: username.toUpperCase(), password: enc_pass, grup, tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss"), pemakai: req.user.myusername.toUpperCase() }, { transaction });
+      await login.create({ username: username.toUpperCase(), password: enc_pass, grup, tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss"), pemakai: req.url == '/register' ? username.toUpperCase() : req.user.myusername.toUpperCase() }, { transaction });
 
       await oto_menu.destroy({ where: { grup } }, { transaction });
       await oto_menu.bulkCreate([
-        { grup, nomenu: "M001", open: true, update: true, pemakai: req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss") },
-        { grup, nomenu: "M002", open: true, pemakai: req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss") },
-        { grup, nomenu: "M010", open: true, add: true, pemakai: req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss") },
-        { grup, nomenu: "M014", open: true, pemakai: req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss") },
+        { grup, nomenu: "M001", open: true, update: true, pemakai: req.url == '/register' ? username.toUpperCase() : req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss") },
+        { grup, nomenu: "M002", open: true, pemakai: req.url == '/register' ? username.toUpperCase() : req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss") },
+        { grup, nomenu: "M010", open: true, add: true, pemakai: req.url == '/register' ? username.toUpperCase() : req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss") },
+        { grup, nomenu: "M014", open: true, pemakai: req.url == '/register' ? username.toUpperCase() : req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss") },
       ], { transaction });
 
       await oto_report.destroy({ where: { grup } }, { transaction });
       await oto_report.create({
-        grup, report: "R002", aktif: true, periode: true, pdf: true, pemakai: req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss")
-      });
+        grup, report: "R002", aktif: true, periode: true, pdf: true, pemakai: req.url == '/register' ? username.toUpperCase() : req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss")
+      }, { transaction });
 
       await transaction.commit();
       return res.status(200).json({ error: false, message: "Data berhasil disimpan" });
@@ -190,7 +190,7 @@ const auth_cont = {
         await oto_report.destroy({ where: { grup } }, { transaction });
         await oto_report.create({
           grup, report: "R002", aktif: true, periode: true, pdf: true, pemakai: req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss")
-        });
+        }, { transaction });
       }
 
       const enc_pass = encrypt(password);
