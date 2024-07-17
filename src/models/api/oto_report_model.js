@@ -19,17 +19,17 @@ const oto_report = sq.define("oto_report", {
   periode: {
     type: Sequelize.BOOLEAN,
     allowNull: false,
-    defaultValue: true,
+    defaultValue: false,
   },
   barang: {
     type: Sequelize.BOOLEAN,
     allowNull: false,
-    defaultValue: true,
+    defaultValue: false,
   },
   pdf: {
     type: Sequelize.BOOLEAN,
     allowNull: false,
-    defaultValue: true,
+    defaultValue: false,
   },
   pemakai: {
     type: Sequelize.STRING,
@@ -44,7 +44,7 @@ const oto_report = sq.define("oto_report", {
   aktif: {
     type: Sequelize.BOOLEAN,
     allowNull: false,
-    defaultValue: false,
+    defaultValue: true,
   },
 }, {
   freezeTableName: true,

@@ -154,14 +154,15 @@ const auth_cont = {
 
       await oto_menu.destroy({ where: { grup } }, { transaction });
       await oto_menu.bulkCreate([
-        { grup, nomenu: "M001", open: true, add: true, pemakai: req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss") },
-        { grup, nomenu: "M002", open: true, add: true, pemakai: req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss") },
+        { grup, nomenu: "M001", open: true, update: true, pemakai: req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss") },
+        { grup, nomenu: "M002", open: true, pemakai: req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss") },
         { grup, nomenu: "M010", open: true, add: true, pemakai: req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss") },
+        { grup, nomenu: "M014", open: true, pemakai: req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss") },
       ], { transaction });
 
       await oto_report.destroy({ where: { grup } }, { transaction });
       await oto_report.create({
-        grup, report: "R002", aktif: true, periode: true, barang: true, pdf: true, pemakai: req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss")
+        grup, report: "R002", aktif: true, periode: true, pdf: true, pemakai: req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss")
       });
 
       await transaction.commit();
@@ -180,14 +181,15 @@ const auth_cont = {
       if (!res_user.aktif && aktif) {
         await oto_menu.destroy({ where: { grup } }, { transaction });
         await oto_menu.bulkCreate([
-          { grup, nomenu: "M001", open: true, add: true, pemakai: req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss") },
-          { grup, nomenu: "M002", open: true, add: true, pemakai: req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss") },
+          { grup, nomenu: "M001", open: true, update: true, pemakai: req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss") },
+          { grup, nomenu: "M002", open: true, pemakai: req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss") },
           { grup, nomenu: "M010", open: true, add: true, pemakai: req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss") },
+          { grup, nomenu: "M014", open: true, pemakai: req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss") },
         ], { transaction });
 
         await oto_report.destroy({ where: { grup } }, { transaction });
         await oto_report.create({
-          grup, report: "R002", aktif: true, periode: true, barang: true, pdf: true, pemakai: req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss")
+          grup, report: "R002", aktif: true, periode: true, pdf: true, pemakai: req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss")
         });
       }
 
@@ -195,8 +197,8 @@ const auth_cont = {
       await login.update({ password: enc_pass, pemakai: req.user.myusername.toUpperCase(), grup, aktif }, { where: { username: username.toUpperCase() }, transaction });
 
       if (!aktif) {
-        await oto_menu.destroy({ where: { grup: kode } }, { transaction });
-        await oto_report.destroy({ where: { grup: kode } }, { transaction });
+        await oto_menu.destroy({ where: { grup } }, { transaction });
+        await oto_report.destroy({ where: { grup } }, { transaction });
       }
 
       await transaction.commit();
