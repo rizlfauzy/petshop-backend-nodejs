@@ -269,6 +269,7 @@ export const check_save_barang = [
       const check = await barang.findOne({ where: { barcode: barcode.toUpperCase() } });
       if (check) throw new Error("Barcode sudah digunakan");
       if (repack) {
+        if (barang_induk == '') throw new Error("Barcode Induk harus diisi");
         const check_barang_induk = await cari_barang_view.findOne({ where: { barcode: barang_induk.toUpperCase() } });
         if (!check_barang_induk) throw new Error("Barcode Induk tidak ditemukan");
         if (!qty_repack) throw new Error("Qty Repack harus diisi");
@@ -310,6 +311,7 @@ export const check_update_barang = [
       });
       if (!duplicate) throw new Error("Barcode sudah digunakan");
       if (repack) {
+        if (barang_induk == "") throw new Error("Barcode Induk harus diisi");
         const check_barang_induk = await cari_barang_view.findOne({ where: { barcode: barang_induk.toUpperCase() } });
         if (!check_barang_induk) throw new Error("Barcode Induk tidak ditemukan");
         if (!qty_repack) throw new Error("Qty Repack harus diisi");
