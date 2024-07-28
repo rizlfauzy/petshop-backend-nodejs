@@ -37,6 +37,18 @@ cari_stock_barang.init(
       type: Sequelize.NUMBER,
       allowNull: false,
     },
+    qty_repack: {
+      type: Sequelize.NUMBER,
+      allowNull: false,
+    },
+    barang_induk: {
+      type: Sequelize.STRING,
+      allowNull: false,
+    },
+    repack: {
+      type: Sequelize.BOOLEAN,
+      allowNull: false,
+    },
   },
   {
     sequelize: sq,

@@ -60,6 +60,21 @@ const barang = sq.define(
       type: Sequelize.DATE,
       allowNull: true,
     },
+    repack: {
+      type: Sequelize.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    barang_induk: {
+      type: Sequelize.STRING,
+      allowNull: false,
+      defaultValue: "",
+    },
+    qty_repack: {
+      type: Sequelize.NUMBER,
+      allowNull: false,
+      defaultValue: 0,
+    },
   },
   {
     freezeTableName: true,

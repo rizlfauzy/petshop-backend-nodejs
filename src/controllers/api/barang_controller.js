@@ -31,7 +31,7 @@ const barang_cont = {
     const transaction = await sq.transaction();
     try {
       const { barcode, periode } = req.query;
-      const data = await cari_stock_barang.findOne({ attributes:["barcode", "nama_barang", "disc", "stock", "harga_modal", "harga_jual"],where: { barcode: barcode.toUpperCase(), periode }, transaction });
+      const data = await cari_stock_barang.findOne({ attributes: ["barcode", "nama_barang", "disc", "stock", "harga_modal", "harga_jual", "qty_repack", "barang_induk", "repack"], where: { barcode: barcode.toUpperCase(), periode }, transaction });
       await transaction.commit();
       return res.status(200).json({ data, error: false, message: "Data berhasil diambil" });
     } catch (e) {
@@ -69,7 +69,7 @@ const barang_cont = {
   save: async (req, res) => {
     const transaction = await sq.transaction();
     try {
-      const { barcode, nama, kode_satuan: satuan, kode_kategori: kategori, min_stock, disc, harga_jual, harga_modal, keterangan } = req.body;
+      const { barcode, nama, kode_satuan: satuan, kode_kategori: kategori, min_stock, disc, harga_jual, harga_modal, keterangan, repack, barang_induk, qty_repack } = req.body;
       await barang.create(
         {
           barcode: barcode.toUpperCase(),
@@ -81,6 +81,9 @@ const barang_cont = {
           harga_jual: clear_alphabet(clear_char(harga_jual)),
           harga_modal: clear_alphabet(clear_char(harga_modal)),
           keterangan: keterangan ? keterangan.toUpperCase() : "",
+          repack,
+          barang_induk: repack ? barang_induk.toUpperCase() : "",
+          qty_repack: repack ? clear_alphabet(clear_char(qty_repack)) : 0,
           aktif: true,
           pemakai: req.user.myusername.toUpperCase(),
           tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss"),
@@ -109,7 +112,7 @@ const barang_cont = {
   update: async (req, res) => {
     const transaction = await sq.transaction();
     try {
-      const { barcode, nama, kode_satuan: satuan, kode_kategori: kategori, min_stock, disc, harga_jual, harga_modal, keterangan, aktif } = req.body;
+      const { barcode, nama, kode_satuan: satuan, kode_kategori: kategori, min_stock, disc, harga_jual, harga_modal, keterangan, aktif, repack, barang_induk, qty_repack } = req.body;
       await barang.update(
         {
           nama: nama.toUpperCase(),
@@ -121,6 +124,9 @@ const barang_cont = {
           harga_modal: clear_alphabet(clear_char(harga_modal)),
           keterangan: keterangan ? keterangan.toUpperCase() : "",
           aktif,
+          repack,
+          barang_induk: repack ? barang_induk.toUpperCase() : "",
+          qty_repack: repack ? clear_alphabet(clear_char(qty_repack)) : 0,
           pemakai: req.user.myusername.toUpperCase(),
           tglupdate: moment().format("YYYY-MM-DD HH:mm:ss"),
         },

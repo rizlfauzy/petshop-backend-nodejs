@@ -140,6 +140,7 @@ const sales_cont = {
       return res.status(201).json({ message: "Data berhasil disimpan !!!", error: false });
     } catch (e) {
       await transaction.rollback();
+      console.log(e);
       return res.status(500).json({ message: e.message, error: true });
     }
   },

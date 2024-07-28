@@ -28,6 +28,22 @@ cari_stock_real_barang.init({
     type: Sequelize.NUMBER,
     allowNull: false,
   },
+  nama_satuan: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
+  qty_repack: {
+    type: Sequelize.NUMBER,
+    allowNull: false,
+  },
+  barang_induk: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
+  aktif: {
+    type: Sequelize.BOOLEAN,
+    allowNull: false,
+  },
 }, {
   sequelize: sq,
   modelName: "cari_stock_real_barang",

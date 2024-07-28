@@ -52,7 +52,27 @@ cari_barang_view.init({
   aktif: {
     type: Sequelize.BOOLEAN,
     allowNull: false,
-  }
+  },
+  repack: {
+    type: Sequelize.BOOLEAN,
+    allowNull: false,
+  },
+  barang_induk: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
+  qty_repack: {
+    type: Sequelize.NUMBER,
+    allowNull: false,
+  },
+  nama_barang_induk: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
+  nama_satuan_induk: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
 }, {
   sequelize: sq,
   modelName: "cari_barang",
@@ -61,7 +81,7 @@ cari_barang_view.init({
   timestamps: false,
   hooks: {
     beforeFind: (options) => {
-      options.attributes = ["barcode", "nama", "kode_satuan", "nama_satuan", "kode_kategori", "nama_kategori", "min_stock", "disc", "harga_jual", "harga_modal", "keterangan", "aktif"];
+      options.attributes = ["barcode", "nama", "kode_satuan", "nama_satuan", "kode_kategori", "nama_kategori", "min_stock", "disc", "harga_jual", "harga_modal", "keterangan", "aktif", "repack", "barang_induk", "qty_repack", "nama_barang_induk", "nama_satuan_induk"];
     }
   }
 });

@@ -15,6 +15,7 @@ import sales from "../models/api/sales_model";
 import cari_barang_rusak from "../models/api/cari_barang_rusak";
 import cari_repack_barang from "../models/api/cari_repack_barang";
 import { decrypt } from "./encrypt";
+import cari_barang_view from "../models/api/cari_barang_model";
 
 export const check_login = [
   check("username", "Username harus diisi").notEmpty().isString(),
@@ -261,11 +262,18 @@ export const check_save_barang = [
   check("disc", "Disc harus diisi").notEmpty().isString(),
   check("harga_jual", "Harga Jual harus diisi").notEmpty().isString(),
   check("harga_modal", "Harga Modal harus diisi").notEmpty().isString(),
+  check("repack", "Repack harus diisi").notEmpty().isBoolean(),
   async (req, res, next) => {
     try {
-      const { barcode } = req.body;
+      const { barcode, repack, barang_induk, qty_repack, nama_satuan } = req.body;
       const check = await barang.findOne({ where: { barcode: barcode.toUpperCase() } });
       if (check) throw new Error("Barcode sudah digunakan");
+      if (repack) {
+        const check_barang_induk = await cari_barang_view.findOne({ where: { barcode: barang_induk.toUpperCase() } });
+        if (!check_barang_induk) throw new Error("Barcode Induk tidak ditemukan");
+        if (!qty_repack) throw new Error("Qty Repack harus diisi");
+        if (nama_satuan == check_barang_induk.nama_satuan) throw new Error("Satuan Repack tidak boleh sama dengan Satuan Induk");
+      }
       const errors = validationResult(req);
       if (!errors.isEmpty()) throw new Error(errors.array()[0].msg);
       next();
@@ -286,9 +294,10 @@ export const check_update_barang = [
   check("harga_jual", "Harga Jual harus diisi").notEmpty().isString(),
   check("harga_modal", "Harga Modal harus diisi").notEmpty().isString(),
   check("aktif", "Aktif harus diisi").notEmpty().isBoolean(),
+  check("repack", "Repack harus diisi").notEmpty().isBoolean(),
   async (req, res, next) => {
     try {
-      const { old_barcode, barcode } = req.body;
+      const { old_barcode, barcode, repack, barang_induk, qty_repack, nama_satuan } = req.body;
       const check = await barang.findOne({ where: { barcode: old_barcode.toUpperCase() } });
       if (!check) throw new Error("Barcode tidak ditemukan");
       const duplicate = await barang.findOne({
@@ -300,6 +309,12 @@ export const check_update_barang = [
         },
       });
       if (!duplicate) throw new Error("Barcode sudah digunakan");
+      if (repack) {
+        const check_barang_induk = await cari_barang_view.findOne({ where: { barcode: barang_induk.toUpperCase() } });
+        if (!check_barang_induk) throw new Error("Barcode Induk tidak ditemukan");
+        if (!qty_repack) throw new Error("Qty Repack harus diisi");
+        if (nama_satuan == check_barang_induk.nama_satuan) throw new Error("Satuan Repack tidak boleh sama dengan Satuan Induk");
+      }
       const errors = validationResult(req);
       if (!errors.isEmpty()) throw new Error(errors.array()[0].msg);
       next();
@@ -530,6 +545,7 @@ export const check_save_sales = [
       if (!errors.isEmpty()) throw new Error(errors.array()[0].msg);
       next();
     } catch (e) {
+      console.log(e);
       return res.status(500).json({ message: e.message, error: true, e });
     }
   },
@@ -1009,7 +1025,6 @@ export const check_update_repack_barang = [
               const stock_now = Number(stock.stock);
               const stock_real_now = Number(Number(stock_real.awal) + Number(stock_real.masuk) - Number(stock_real.keluar));
               const qty_list_barang = list_barang_hasil.some((item) => item.barcode === barang.barcode) ? list_barang_hasil.find((item) => item.barcode === barang.barcode).qty : 0;
-              if (stock_real_now + Number(barang.qty) < Number(qty_list_barang)) throw new Error(`Stock ${barang.nama_barang} tidak cukup di periode ${periode_stock} !!!`);
               if (stock_real_now != stock_now) throw new Error(`Stock ${barang.nama_barang} tidak sama di periode ${periode_stock} !!!`);
             } else throw new Error(`Stock ${barang.nama_barang} tidak ditemukan di periode ${periode_stock} !!!`);
           }
@@ -1020,7 +1035,6 @@ export const check_update_repack_barang = [
             const stock_now = Number(stock.stock);
             const stock_real_now = Number(Number(stock_real.awal) + Number(stock_real.masuk) - Number(stock_real.keluar));
             const qty_list_barang = list_barang_hasil.some((item) => item.barcode === barang.barcode) ? list_barang_hasil.find((item) => item.barcode === barang.barcode).qty : 0;
-            if (stock_real_now + Number(barang.qty) < Number(qty_list_barang)) throw new Error(`Stock ${barang.nama_barang} tidak cukup di periode ${periode} !!!`);
             if (stock_real_now != stock_now) throw new Error(`Stock ${barang.nama_barang} tidak sama di periode ${periode} !!!`);
           } else throw new Error(`Stock ${barang.nama_barang} tidak ditemukan di periode ${periode} !!!`);
         }

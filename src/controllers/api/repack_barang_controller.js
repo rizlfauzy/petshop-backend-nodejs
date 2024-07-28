@@ -14,7 +14,7 @@ const repack_barang_cont = {
     try {
       const { nomor } = req.query;
       const data = await repack_barang.findOne({ attributes: ["nomor", "tanggal", "keterangan"], where: { nomor } }, { transaction });
-      const detail = await cari_repack_barang.findAll({ attributes: ["barcode", "nama_barang", "stock", "qty", "jenis"], where: { nomor } }, { transaction });
+      const detail = await cari_repack_barang.findAll({ attributes: ["barcode", "nama_barang", "stock", "qty", "jenis", "qty_repack"], where: { nomor } }, { transaction });
       data.setDataValue("list_barang", detail);
       await transaction.commit();
       return res.status(200).json({ data, message: "Data berhasil didapatkan !!!", error: false });

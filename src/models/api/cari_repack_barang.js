@@ -37,7 +37,11 @@ cari_repack_barang.init({
   jenis: {
     type: Sequelize.STRING,
     allowNull: false
-  }
+  },
+  qty_repack: {
+    type: Sequelize.NUMBER,
+    allowNull: false,
+  },
 }, {
   sequelize: sq,
   modelName: "cari_repack_barang",
