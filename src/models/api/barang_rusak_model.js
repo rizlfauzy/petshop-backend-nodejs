@@ -42,6 +42,11 @@ const barang_rusak = sq.define("barang_rusak", {
     allowNull: false,
     defaultValue: "IT",
   },
+  is_approved: {
+    type: Sequelize.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  },
 }, {
   freezeTableName: true,
   timestamps: false,

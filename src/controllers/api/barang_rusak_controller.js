@@ -13,22 +13,23 @@ const barang_rusak_cont = {
     const transaction = await sq.transaction();
     try {
       const { nomor } = req.query;
-      const data = await barang_rusak.findOne({ attributes: ["nomor", "tanggal", "keterangan"], where: { nomor }, transaction });
+      const data = await barang_rusak.findOne({ attributes: ["nomor", "tanggal", "keterangan", "is_approved"], where: { nomor }, transaction });
       const detail = await cari_barang_rusak.findAll({ attributes: ["barcode", "nama_barang", "stock", "qty", "harga", "total"], where: { nomor } }, { transaction });
       data.setDataValue("list_barang", detail);
       await transaction.commit();
       return res.status(200).json({ data, message: "Data berhasil didapatkan !!!", error: false });
-    } catch (err) {
+    } catch (e) {
       await transaction.rollback();
+      console.log({e});
       return res.status(500).json({ message: e.message, error: true });
     }
   },
-  save: async (req, res) => {
+  approve: async (req, res) => {
     const transaction = await sq.transaction();
     try {
-      const list_barang = JSON.parse(req.body.list_barang);
-      const { tanggal, keterangan } = req.body;
-      const nomor = await generate_kode("barang_rusak", `BR-${moment().format("YYYY-MM")}-`, "nomor", 11, `0001`, 4);
+      // const list_barang = JSON.parse(req.body.list_barang);
+      const list_barang = await cari_barang_rusak.findAll({ attributes: ["barcode", "qty", "nama_barang", "tanggal"], where: { nomor: req.body.nomor } }, { transaction });
+      const { tanggal, keterangan, nomor } = req.body;
       const periode = moment().format("YYYYMM");
 
       const first_date = moment(tanggal).startOf("month").format("YYYY-MM-DD");
@@ -79,24 +80,53 @@ const barang_rusak_cont = {
         }
       }
 
-      await barang_rusak.create({ nomor, tanggal: moment(tanggal).format("YYYY-MM-DD"), keterangan, pemakai: req.user.myusername, tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss") }, { transaction });
+      await barang_rusak.update({ is_approved: true }, { where: { nomor }, transaction });
 
-      for (const barang of list_barang) {
-        await barang_rusak_detail.create(
-          {
-            nomor,
-            barcode: barang.barcode,
-            qty: barang.qty,
-            harga: barang.harga,
-            total: barang.total_harga,
-            pemakai: req.user.myusername,
-            tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss"),
-          },
-          { transaction }
-        );
-      }
       await transaction.commit();
-      return res.status(201).json({ message: "Barang Rusak berhasil disimpan !!!", error: false });
+      return res.status(201).json({ message: "Barang Rusak berhasil diapprove !!!", error: false });
+    } catch (e) {
+      await transaction.rollback();
+      return res.status(500).json({ message: e.message, error: true });
+    }
+  },
+  reject: async (req, res) => {
+    const transaction = await sq.transaction();
+    try {
+      const { alasan, nomor } = req.body;
+
+      await barang_rusak.update({ batal: true, tglbatal: moment().format("YYYY-MM-DD HH:mm:ss"), keteranganbatal: alasan, pemakai: req.user.myusername.toUpperCase() }, { where: { nomor }, transaction });
+
+      await transaction.commit();
+      return res.status(201).json({ message: "Barang Rusak berhasil direject !!!", error: false });
+    } catch (e) {
+      await transaction.rollback();
+      return res.status(500).json({ message: e.message, error: true });
+    }
+  },
+  save: async (req, res) => {
+    const transaction = await sq.transaction();
+    try {
+      const list_barang = JSON.parse(req.body.list_barang);
+      const { tanggal, keterangan } = req.body;
+      const nomor = await generate_kode("barang_rusak", `BR-${moment().format("YYYY-MM")}-`, "nomor", 11, `0001`, 4);
+
+      await barang_rusak.create({ nomor, tanggal: moment(tanggal).format("YYYY-MM-DD"), keterangan, pemakai: req.user.myusername, tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss"), is_approved: false }, { transaction });
+
+      await barang_rusak_detail.bulkCreate(
+        list_barang.map((barang) => ({
+          nomor,
+          barcode: barang.barcode,
+          qty: barang.qty,
+          harga: barang.harga,
+          total: barang.total_harga,
+          pemakai: req.user.myusername,
+          tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss"),
+        })),
+        { transaction }
+      );
+
+      await transaction.commit();
+      return res.status(201).json({ message: "Data berhasil disimpan !!!", error: false });
     } catch (e) {
       await transaction.rollback();
       return res.status(500).json({ message: e.message, error: true });
