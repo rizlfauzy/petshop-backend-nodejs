@@ -1059,7 +1059,7 @@ export const check_cancel_repack_barang = [
       const { nomor } = req.body;
       const errors = validationResult(req);
       const periode = moment().format("YYYYMM");
-      const detail = await cari_repack_barang.findAll({ attributes: ["barcode", "nama_barang", "tanggal", "qty", "stock"], where: { nomor } });
+      const detail = await cari_repack_barang.findAll({ attributes: ["barcode", "nama_barang", "tanggal", "qty", "stock", "jenis"], where: { nomor } });
       for (const barang of detail) {
         const first_date = moment(barang.tanggal).startOf("month").format("YYYY-MM-DD");
         const selisih_bulan = month_diff(moment(first_date).format("YYYYMM"), periode);
@@ -1071,6 +1071,7 @@ export const check_cancel_repack_barang = [
             if (stock && stock_real) {
               const stock_now = Number(stock.stock);
               const stock_real_now = Number(Number(stock_real.awal) + Number(stock_real.masuk) - Number(stock_real.keluar));
+              if (barang.jenis == "hasil" && stock_real_now < Number(barang.qty)) throw new Error(`Stock ${barang.nama_barang} sudah dipakai di periode ${periode_stock} !!!`);
               if (stock_real_now != stock_now) throw new Error(`Stock ${barang.nama_barang} tidak sama di periode ${periode_stock} !!!`);
             } else {
               throw new Error(`Stock ${barang.nama_barang} tidak ditemukan di periode ${periode_stock} !!!`);
@@ -1082,6 +1083,7 @@ export const check_cancel_repack_barang = [
           if (stock && stock_real) {
             const stock_now = Number(stock.stock);
             const stock_real_now = Number(Number(stock_real.awal) + Number(stock_real.masuk) - Number(stock_real.keluar));
+            if (barang.jenis == "hasil" && stock_real_now < Number(barang.qty)) throw new Error(`Stock ${barang.nama_barang} sudah dipakai di periode ${periode} !!!`);
             if (stock_real_now != stock_now) throw new Error(`Stock ${barang.nama_barang} tidak sama di periode ${periode} !!!`);
           } else {
             throw new Error(`Stock ${barang.nama_barang} tidak ditemukan di periode ${periode} !!!`);
