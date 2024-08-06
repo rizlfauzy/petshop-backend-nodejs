@@ -22,7 +22,11 @@ _ikuti langkah - langkah berikut_
 >
 > ---
 >
-> 4. Jalankan Program
+> 4. Siapkan database postgresql
+>
+> ---
+>
+> 5. Jalankan Program
 >
 > ```
 > - npm start
