@@ -6,7 +6,7 @@ import sq from "./db.js";
 import route from "./routes/main.js";
 import informasi from "./models/api/informasi_model.js";
 require("dotenv").config();
-const { PREFIX_ROUTE, APP_PORT, APP_NAME, APP_URL, APP_FRONTEND_URL } = process.env;
+const { PREFIX_ROUTE, APP_PORT, APP_NAME, APP_URL, APP_FRONTEND_URL, APP_FRONTEND_IP_URL } = process.env;
 const app = express();
 const http = require("http").createServer(app);
 import { Server } from "socket.io";
@@ -14,7 +14,7 @@ import moment from "moment";
 const Sequelize = require("sequelize");
 const io = new Server(http, {
   cors: {
-    origin: APP_FRONTEND_URL,
+    origin: [APP_FRONTEND_URL, APP_FRONTEND_IP_URL],
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -36,7 +36,7 @@ app.use(
 );
 app.use(
   cors({
-    origin: APP_FRONTEND_URL,
+    origin: [APP_FRONTEND_URL, APP_FRONTEND_IP_URL],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
   })
