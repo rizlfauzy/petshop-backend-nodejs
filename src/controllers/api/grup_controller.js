@@ -3,6 +3,7 @@ import sq from "../../db";
 import moment from "moment";
 import oto_menu from "../../models/api/oto_menu_model";
 import oto_report from "../../models/api/oto_report_model";
+import generate_kode from "../../utils/generate_kode";
 moment.locale("id");
 
 const grup_cont = {
@@ -21,7 +22,8 @@ const grup_cont = {
   save: async (req, res) => {
     const transaction = await sq.transaction();
     try {
-      const { nama, kode } = req.body;
+      const { nama } = req.body;
+      const kode = await generate_kode("grup", "GR-", "kode", 3, "00001", 5);
 
       await grup.create({ nama: nama.toUpperCase(), kode: kode.toUpperCase(), aktif: true, pemakai: req.user.myusername.toUpperCase(), tglsimpan: moment().format("YYYY-MM-DD HH:mm:ss") }, { transaction });
 

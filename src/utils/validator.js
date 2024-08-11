@@ -78,13 +78,12 @@ export const check_info = [
 ];
 
 export const check_save_grup = [
-  check("kode", "Kode harus diisi").notEmpty().isString(),
   check("nama", "Nama harus diisi").notEmpty().isString(),
   async (req, res, next) => {
     try {
-      const { kode } = req.body;
-      const check = await grup.findOne({ where: { kode: kode.toUpperCase() } });
-      if (check) throw new Error("Kode sudah digunakan");
+      const { nama } = req.body;
+      const check = await grup.findOne({ where: { nama: nama.toUpperCase() } });
+      if (check) throw new Error("Nama Grup sudah digunakan");
       const errors = validationResult(req);
       if (!errors.isEmpty()) throw new Error(errors.array()[0].msg);
       next();
@@ -100,9 +99,18 @@ export const check_update_grup = [
   check("aktif", "Aktif harus diisi").notEmpty().isBoolean(),
   async (req, res, next) => {
     try {
-      const { kode } = req.body;
+      const { kode, nama } = req.body;
       const check = await grup.findOne({ where: { kode: kode.toUpperCase() } });
-      if (!check) throw new Error("Kode tidak ditemukan");
+      if (!check) throw new Error("Kode Grup tidak ditemukan");
+      const check_name = await grup.findOne({
+        where: {
+          nama: nama.toUpperCase(),
+          kode: {
+            [Op.ne]: kode.toUpperCase(),
+          },
+        },
+      })
+      if (check_name) throw new Error("Nama Grup sudah digunakan");
       const errors = validationResult(req);
       if (!errors.isEmpty()) throw new Error(errors.array()[0].msg);
       next();
@@ -177,7 +185,7 @@ export const check_save_satuan = [
     try {
       const { nama } = req.body;
       const check = await satuan.findOne({ where: { nama: nama.toUpperCase() } });
-      if (check) throw new Error("Nama sudah digunakan");
+      if (check) throw new Error("Nama Satuan sudah digunakan");
       const errors = validationResult(req);
       if (!errors.isEmpty()) throw new Error(errors.array()[0].msg);
       next();
@@ -202,7 +210,7 @@ export const check_update_satuan = [
           },
         },
       });
-      if (check) throw new Error("Nama sudah digunakan");
+      if (check) throw new Error("Nama Satuan sudah digunakan");
       const errors = validationResult(req);
       if (!errors.isEmpty()) throw new Error(errors.array()[0].msg);
       next();
@@ -218,7 +226,7 @@ export const check_save_kategori = [
     try {
       const { nama } = req.body;
       const check = await kategori.findOne({ where: { nama: nama.toUpperCase() } });
-      if (check) throw new Error("Nama sudah digunakan");
+      if (check) throw new Error("Nama Kategori sudah digunakan");
       const errors = validationResult(req);
       if (!errors.isEmpty()) throw new Error(errors.array()[0].msg);
       next();
@@ -243,7 +251,7 @@ export const check_update_kategori = [
           },
         },
       });
-      if (check) throw new Error("Nama sudah digunakan");
+      if (check) throw new Error("Nama Kategori sudah digunakan");
       const errors = validationResult(req);
       if (!errors.isEmpty()) throw new Error(errors.array()[0].msg);
       next();
@@ -254,12 +262,12 @@ export const check_update_kategori = [
 ];
 
 export const check_save_barang = [
-  check("barcode", "Barcode harus diisi").notEmpty().isString(),
-  check("nama", "Nama harus diisi").notEmpty().isString(),
-  check("kode_satuan", "Satuan harus diisi").notEmpty().isString(),
-  check("kode_kategori", "Kategori harus diisi").notEmpty().isString(),
+  check("barcode", "Barcode Barang harus diisi").notEmpty().isString(),
+  check("nama", "Nama Barang harus diisi").notEmpty().isString(),
+  check("kode_satuan", "Nama Satuan harus diisi").notEmpty().isString(),
+  check("kode_kategori", "Nama Kategori harus diisi").notEmpty().isString(),
   check("min_stock", "Min Stock harus diisi").notEmpty().isString(),
-  check("disc", "Disc harus diisi").notEmpty().isString(),
+  check("disc", "Diskon harus diisi").notEmpty().isString(),
   check("harga_jual", "Harga Jual harus diisi").notEmpty().isString(),
   check("harga_modal", "Harga Modal harus diisi").notEmpty().isString(),
   check("repack", "Repack harus diisi").notEmpty().isBoolean(),
@@ -286,12 +294,12 @@ export const check_save_barang = [
 
 export const check_update_barang = [
   check("old_barcode", "Old Barcode harus diisi").notEmpty().isString(),
-  check("barcode", "Barcode harus diisi").notEmpty().isString(),
-  check("nama", "Nama harus diisi").notEmpty().isString(),
-  check("kode_satuan", "Satuan harus diisi").notEmpty().isString(),
-  check("kode_kategori", "Kategori harus diisi").notEmpty().isString(),
+  check("barcode", "Barcode Barang harus diisi").notEmpty().isString(),
+  check("nama", "Nama Barang harus diisi").notEmpty().isString(),
+  check("kode_satuan", "Nama Satuan harus diisi").notEmpty().isString(),
+  check("kode_kategori", "Nama Kategori harus diisi").notEmpty().isString(),
   check("min_stock", "Min Stock harus diisi").notEmpty().isString(),
-  check("disc", "Disc harus diisi").notEmpty().isString(),
+  check("disc", "Diskon harus diisi").notEmpty().isString(),
   check("harga_jual", "Harga Jual harus diisi").notEmpty().isString(),
   check("harga_modal", "Harga Modal harus diisi").notEmpty().isString(),
   check("aktif", "Aktif harus diisi").notEmpty().isBoolean(),
