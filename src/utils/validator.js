@@ -348,9 +348,10 @@ export const check_save_otority = [
 
       if (reports.length === 0) throw new Error("Harus pilih report !!!");
       for (const item of reports) {
-        const rule_report = await cari_rules_reports.findOne({ attributes: ["barang", "periode", "pdf", "excel"],where: { report: item.report } });
+        const rule_report = await cari_rules_reports.findOne({ attributes: ["report", "barang", "periode", "pdf", "excel"],where: { report: item.report } });
         if (!rule_report) throw new Error("Report tidak ditemukan !!!");
-        if ((!item.barang && rule_report.barang) && (!item.periode && rule_report.periode) && (!item.pdf && rule_report.pdf)) throw new Error("Harus pilih akses report !!!");
+        if (rule_report.barang && !item.barang) throw new Error(`Harus pilih akses barang kode report ${item.report} !!!`);
+        if (rule_report.periode && !item.periode) throw new Error(`Harus pilih akses periode kode report ${item.report} !!!`);
       }
 
       const errors = validationResult(req);

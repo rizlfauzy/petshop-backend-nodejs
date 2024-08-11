@@ -83,13 +83,12 @@ const otority_cont = {
         ],
       });
       data.forEach((item) => {
-        // set new attributes with default value false
         item.setDataValue("add", false);
         item.setDataValue("update", false);
         item.setDataValue("cancel", false);
         item.setDataValue("backdate", false);
       });
-      return res.status(200).json({ data, error: false, message: "Data berhasil diambil" });
+      return res.status(200).json({ data, error: false, message: "Data Menu berhasil diambil" });
     } catch (error) {
       res.status(500).json({ message: error.message, error: true });
     }
@@ -97,7 +96,7 @@ const otority_cont = {
   menu_role: async (req, res) => {
     try {
       const data = await sq.query(`SELECT nomenu, namamenu, grupmenu, add, update, cancel, backdate from cari_oto_menu where grup = :grup`, {replacements: {grup: req.query.grup.toUpperCase()}, type: Sequelize.QueryTypes.SELECT});
-      return res.status(200).json({ data, error: false, message: "Data berhasil diambil" });
+      return res.status(200).json({ data, error: false, message: "Data Menu berhasil diambil" });
     } catch (error) {
       res.status(500).json({ message: error.message, error: true });
     }
@@ -124,13 +123,12 @@ const otority_cont = {
         ],
       });
       data.forEach((item) => {
-        // set new attributes with default value false
         item.setDataValue("add", false);
         item.setDataValue("update", false);
         item.setDataValue("cancel", false);
         item.setDataValue("backdate", false);
       });
-      return res.status(200).json({ data, error: false, message: "Data berhasil diambil" });
+      return res.status(200).json({ data, error: false, message: "Data Menu berhasil diambil" });
     } catch (error) {
       res.status(500).json({ message: error.message, error: true });
     }
@@ -156,7 +154,7 @@ const otority_cont = {
       });
 
       await transaction.commit();
-      return res.status(200).json({ error: false, message: "Data berhasil disimpan" });
+      return res.status(200).json({ error: false, message: "Data otoritas berhasil disimpan" });
     } catch (error) {
       await transaction.rollback();
       res.status(500).json({ message: error.message, error: true });
