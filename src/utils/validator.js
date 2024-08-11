@@ -11,9 +11,9 @@ import cari_pembelian from "../models/api/cari_order";
 import cari_sales from "../models/api/cari_sales";
 import month_diff from "./month_diff";
 import moment from "moment";
-import sales from "../models/api/sales_model";
 import cari_barang_rusak from "../models/api/cari_barang_rusak";
 import cari_repack_barang from "../models/api/cari_repack_barang";
+import cari_rules_reports from "../models/api/cari_rules_reports";
 import { decrypt } from "./encrypt";
 import cari_barang_view from "../models/api/cari_barang_model";
 
@@ -347,9 +347,11 @@ export const check_save_otority = [
       });
 
       if (reports.length === 0) throw new Error("Harus pilih report !!!");
-      reports.forEach((item) => {
-        if (!item.barang && !item.periode && !item.pdf) throw new Error("Harus pilih akses report !!!");
-      });
+      for (const item of reports) {
+        const rule_report = await cari_rules_reports.findOne({ attributes: ["barang", "periode", "pdf", "excel"],where: { report: item.report } });
+        if (!rule_report) throw new Error("Report tidak ditemukan !!!");
+        if ((!item.barang && rule_report.barang) && (!item.periode && rule_report.periode) && (!item.pdf && rule_report.pdf)) throw new Error("Harus pilih akses report !!!");
+      }
 
       const errors = validationResult(req);
       if (!errors.isEmpty()) throw new Error(errors.array()[0].msg);
