@@ -2,6 +2,7 @@ import menu from "../../models/api/menu_model";
 import oto_menu from "../../models/api/oto_menu_model";
 import report from "../../models/api/report_model";
 import oto_report from "../../models/api/oto_report_model";
+import cari_rules_reports from "../../models/api/cari_rules_reports";
 import moment from "moment";
 import { Op } from "sequelize";
 import sq from "../../db";
@@ -12,11 +13,8 @@ const otority_cont = {
   reports: async (req, res) => {
     const transaction = await sq.transaction();
     try {
-      const data = await report.findAll({
-        attributes: ["report", "nama"],
-        where: {
-          aktif: true,
-        },
+      const data = await cari_rules_reports.findAll({
+        attributes: ["report", "nama", ["periode", "rule_periode"], ["barang", "rule_barang"], ["pdf", "rule_pdf"], ["excel", "rule_excel"]],
         order: [["pos", "ASC"]],
       });
       data.forEach(item => {
@@ -25,7 +23,7 @@ const otority_cont = {
         item.setDataValue("pdf", false);
       })
       await transaction.commit();
-      return res.status(200).json({ data, error: false, message: "Data berhasil diambil" });
+      return res.status(200).json({ data, error: false, message: "Data Reports berhasil diambil" });
     } catch (error) {
       await transaction.rollback();
       res.status(500).json({ message: error.message, error: true });
@@ -34,9 +32,9 @@ const otority_cont = {
   reports_role: async (req, res) => {
     const transaction = await sq.transaction();
     try {
-      const data = await sq.query(`SELECT grup, report, nama, pos, barang, periode, pdf from cari_oto_report where grup = :grup`, {replacements: {grup: req.query.grup.toUpperCase()}, type: Sequelize.QueryTypes.SELECT});
+      const data = await sq.query(`SELECT grup, report, nama, pos, barang, periode, pdf, rule_periode, rule_barang, rule_pdf, rule_excel from cari_oto_rules_reports where grup = :grup`, {replacements: {grup: req.query.grup.toUpperCase()}, type: Sequelize.QueryTypes.SELECT});
       await transaction.commit();
-      return res.status(200).json({ data, error: false, message: "Data berhasil diambil" });
+      return res.status(200).json({ data, error: false, message: "Data Reports berhasil diambil" });
     } catch (error) {
       await transaction.rollback();
       res.status(500).json({ message: error.message, error: true });
@@ -45,10 +43,9 @@ const otority_cont = {
   reports_likes: async (req, res) => {
     const transaction = await sq.transaction();
     try {
-      const data = await report.findAll({
-        attributes: ["report", "nama"],
+      const data = await cari_rules_reports.findAll({
+        attributes: ["report", "nama", ["periode", "rule_periode"], ["barang", "rule_barang"], ["pdf", "rule_pdf"], ["excel", "rule_excel"]],
         where: {
-          aktif: true,
           [Op.or]: {
             nama: { [Op.iLike]: `%${req.query.q}%` },
             report: {
@@ -64,7 +61,7 @@ const otority_cont = {
         item.setDataValue("pdf", false);
       })
       await transaction.commit();
-      return res.status(200).json({ data, error: false, message: "Data berhasil diambil" });
+      return res.status(200).json({ data, error: false, message: "Data Reports berhasil diambil" });
     } catch (error) {
       await transaction.rollback();
       res.status(500).json({ message: error.message, error: true });
