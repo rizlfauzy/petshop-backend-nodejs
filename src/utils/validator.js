@@ -13,6 +13,7 @@ import month_diff from "./month_diff";
 import moment from "moment";
 import cari_barang_rusak from "../models/api/cari_barang_rusak";
 import cari_repack_barang from "../models/api/cari_repack_barang";
+import cari_rules_menus from "../models/api/cari_rules_menus";
 import cari_rules_reports from "../models/api/cari_rules_reports";
 import { decrypt } from "./encrypt";
 import cari_barang_view from "../models/api/cari_barang_model";
@@ -342,9 +343,14 @@ export const check_save_otority = [
       const reports = JSON.parse(req.body.reports);
 
       if (menus.length === 0) throw new Error("Harus pilih menu !!!");
-      menus.forEach((item) => {
-        if (!item.add && !item.update && !item.cancel) throw new Error("Harus pilih akses menu !!!");
-      });
+      for (const item of menus) {
+        const rule_menu = await cari_rules_menus.findOne({ attributes: ["nomenu", "add", ["update", "rule_update"], "cancel", "backdate"], where: { nomenu: item.nomenu } });
+        if (!rule_menu) throw new Error("Menu tidak ditemukan !!!");
+        if (!item.add && !item.update && !item.cancel && !item.backdate) {
+          if (!rule_menu.add && !rule_menu.rule_update && !rule_menu.cancel && !rule_menu.backdate) continue;
+          throw new Error(`Harus pilih akses menu di No Menu ${item.nomenu} !!!`);
+        }
+      }
 
       if (reports.length === 0) throw new Error("Harus pilih report !!!");
       for (const item of reports) {

@@ -1,8 +1,7 @@
-import menu from "../../models/api/menu_model";
 import oto_menu from "../../models/api/oto_menu_model";
-import report from "../../models/api/report_model";
 import oto_report from "../../models/api/oto_report_model";
 import cari_rules_reports from "../../models/api/cari_rules_reports";
+import cari_rules_menus from "../../models/api/cari_rules_menus";
 import moment from "moment";
 import { Op } from "sequelize";
 import sq from "../../db";
@@ -69,8 +68,8 @@ const otority_cont = {
   },
   all_menu: async (req, res) => {
     try {
-      const data = await menu.findAll({
-        attributes: ["grupmenu", "nomenu", "namamenu"],
+      const data = await cari_rules_menus.findAll({
+        attributes: ["grupmenu", "nomenu", "namamenu", ["add", "rule_add"], ["update", "rule_update"], ["cancel", "rule_cancel"], ["backdate", "rule_backdate"]],
         where: {
           aktif: true,
           nomenu: {
@@ -95,7 +94,7 @@ const otority_cont = {
   },
   menu_role: async (req, res) => {
     try {
-      const data = await sq.query(`SELECT nomenu, namamenu, grupmenu, add, update, cancel, backdate from cari_oto_menu where grup = :grup`, {replacements: {grup: req.query.grup.toUpperCase()}, type: Sequelize.QueryTypes.SELECT});
+      const data = await sq.query(`SELECT nomenu, namamenu, grupmenu, add, update, cancel, backdate, rule_add, rule_update, rule_cancel, rule_backdate from cari_oto_rules_menus where grup = :grup`, {replacements: {grup: req.query.grup.toUpperCase()}, type: Sequelize.QueryTypes.SELECT});
       return res.status(200).json({ data, error: false, message: "Data Menu berhasil diambil" });
     } catch (error) {
       res.status(500).json({ message: error.message, error: true });
@@ -103,8 +102,8 @@ const otority_cont = {
   },
   likes_menu: async (req, res) => {
     try {
-      const data = await menu.findAll({
-        attributes: ["grupmenu", "nomenu", "namamenu"],
+      const data = await cari_rules_menus.findAll({
+        attributes: ["grupmenu", "nomenu", "namamenu", ["add", "rule_add"], ["update", "rule_update"], ["cancel", "rule_cancel"], ["backdate", "rule_backdate"]],
         where: {
           aktif: true,
           nomenu: {
