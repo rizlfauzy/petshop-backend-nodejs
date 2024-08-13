@@ -69,14 +69,14 @@ const barang_cont = {
   save: async (req, res) => {
     const transaction = await sq.transaction();
     try {
-      const { barcode, nama, kode_satuan: satuan, kode_kategori: kategori, min_stock, disc, harga_jual, harga_modal, keterangan, repack, barang_induk, qty_repack } = req.body;
+      const { barcode, nama, kode_satuan: satuan, kode_kategori: kategori, disc, harga_jual, harga_modal, keterangan, repack, barang_induk, qty_repack } = req.body;
       await barang.create(
         {
           barcode: barcode.toUpperCase(),
           nama: nama.toUpperCase(),
           satuan,
           kategori,
-          min_stock: clear_alphabet(clear_char(min_stock)),
+          // min_stock: clear_alphabet(clear_char(min_stock)),
           disc: clear_alphabet(clear_char(disc)),
           harga_jual: clear_alphabet(clear_char(harga_jual)),
           harga_modal: clear_alphabet(clear_char(harga_modal)),
@@ -112,13 +112,13 @@ const barang_cont = {
   update: async (req, res) => {
     const transaction = await sq.transaction();
     try {
-      const { barcode, nama, kode_satuan: satuan, kode_kategori: kategori, min_stock, disc, harga_jual, harga_modal, keterangan, aktif, repack, barang_induk, qty_repack } = req.body;
+      const { barcode, nama, kode_satuan: satuan, kode_kategori: kategori, disc, harga_jual, harga_modal, keterangan, aktif, repack, barang_induk, qty_repack } = req.body;
       await barang.update(
         {
           nama: nama.toUpperCase(),
           satuan,
           kategori,
-          min_stock: clear_alphabet(clear_char(min_stock)),
+          // min_stock: clear_alphabet(clear_char(min_stock)),
           disc: clear_alphabet(clear_char(disc)),
           harga_jual: clear_alphabet(clear_char(harga_jual)),
           harga_modal: clear_alphabet(clear_char(harga_modal)),

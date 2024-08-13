@@ -24,6 +24,7 @@ const barang = sq.define(
     min_stock: {
       type: Sequelize.NUMBER,
       allowNull: false,
+      defaultValue: 0,
     },
     disc: {
       type: Sequelize.NUMBER,
